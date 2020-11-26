@@ -21,6 +21,9 @@ class NodeCaptor {
         }
         switch (n.nodeType) {
             case n.ELEMENT_NODE:
+                if ((n as HTMLElement).classList.contains('norecord')) {
+                    return false;
+                }
                 // Get the tag name
                 const ElementName = (n as HTMLElement).tagName
 

@@ -5,7 +5,7 @@ export function getCssRulesString(s: CSSStyleSheet): string | null {
     try {
         const rules = s.rules || s.cssRules
         return rules
-            ? Array.from(rules).reduce(CSStoString,'')
+            ? Array.from(rules).reduce(CSStoString, '')
             : null
     } catch (error) {
         return null
