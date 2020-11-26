@@ -1,0 +1,29 @@
+{
+  "name": "arkad-recorder",
+  "version": "1.0.0",
+  "description": "Arkad core recorder",
+  "main": "index.ts",
+  "scripts": {
+    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SSMM0498/arkad-recorder.git"
+  },
+  "author": "Serigne Saliou Mbacké Mbaye",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SSMM0498/arkad-recorder/issues"
+  },
+  "homepage": "https://github.com/SSMM0498/arkad-recorder#readme",
+  "devDependencies": {
+    "@types/chai": "^4.2.14",
+    "@types/mocha": "^8.0.4",
+    "chai": "^4.2.0",
+    "mocha": "^8.2.1",
+    "nyc": "^15.1.0",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.1.2"
+  }
+}
