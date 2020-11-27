@@ -1,5 +1,7 @@
+import { String } from "globalthis/implementation"
+import { ElementFlags } from "typescript"
 import { NodeCaptured, DocumentNodesMap, NodeFormated, NodeType, ElementNode, TextNode, attributes, } from "./types"
-import { transformAttribute, getStylesheet, getCssRulesString, absoluteToStylesheet } from "./utils"
+import { transformAttribute, getStylesheet, getCssRulesString } from "./utils"
 
 class NodeCaptor {
     private currentId: number
@@ -26,102 +28,40 @@ class NodeCaptor {
                 }
                 // Get the tag name
                 const ElementName = (n as HTMLElement).tagName
-
-                // Get the attributes
                 let attributes: attributes = {}
-                const nodeAttr = Array.from((n as HTMLElement).attributes)
-                for (const { name, value } of nodeAttr) {
-                    attributes[name] = transformAttribute(this.documentRoot, name, value)
-                }
-                // Get the scrolling value
-                if ((n as HTMLElement).scrollLeft) {
-                    attributes._scrollLeft = (n as HTMLElement).scrollLeft
-                }
-                if ((n as HTMLElement).scrollTop) {
-                    attributes._scrollTop = (n as HTMLElement).scrollTop
-                }
-                // Get the node size
-                const {
-                    width,
-                    height,
-                } = (n as HTMLElement).getBoundingClientRect()
-                attributes._width = `${width}px`
-                attributes._height = `${height}px`
+
+                // Get global attribute
+                getGlobalAttribute(n, this.documentRoot, attributes)
 
                 // Get the css rules
                 // external css
                 if (ElementName === 'link') {
-                    const stylesheet = getStylesheet(this.documentRoot, n)
-
-                    const cssText = getCssRulesString(
-                        stylesheet as CSSStyleSheet,
-                    )
-                    if (cssText) {
-                        delete attributes.rel
-                        delete attributes.href
-                        attributes._cssText = absoluteToStylesheet(
-                            cssText,
-                            stylesheet!.href!,
-                        )
-                    }
+                    getExternalCssAttribute(n, attributes)
                 }
                 // internal css
-                if (
-                    ElementName === 'style' &&
-                    (n as HTMLStyleElement).sheet &&
-                    !(
-                        (n as HTMLElement).innerText ||
-                        (n as HTMLElement).textContent ||
-                        ''
-                    ).trim().length
-                ) {
-                    const cssText = getCssRulesString(
-                        (n as HTMLStyleElement).sheet as CSSStyleSheet,
-                    )
-                    if (cssText) {
-                        attributes._cssText = absoluteToStylesheet(
-                            cssText,
-                            location.href,
-                        )
-                    }
+                if (ElementName === 'style') {
+                    getInternalCssAttribute(n, attributes)
                 }
-                // form fields
+                // Get form fields attributes
                 if (
                     ElementName === 'input' ||
                     ElementName === 'textarea' ||
-                    ElementName === 'select'
+                    ElementName === 'select' ||
+                    ElementName === 'option'
                 ) {
-                    const value = (n as HTMLInputElement | HTMLTextAreaElement)
-                        .value
-                    if (
-                        attributes.type !== 'radio' &&
-                        attributes.type !== 'checkbox' &&
-                        value
-                    ) {
-                        attributes.value = value
-                    } else if ((n as HTMLInputElement).checked) {
-                        attributes.checked = (n as HTMLInputElement).checked
-                    }
+                    getFormFieldAttributes(n, ElementName, attributes)
                 }
-                if (ElementName === 'option') {
-                    const selectValue = (n as HTMLOptionElement).parentElement
-                    if (
-                        attributes.value ===
-                        (selectValue as HTMLSelectElement).value
-                    ) {
-                        attributes.selected = (n as HTMLOptionElement).selected
-                    }
-                }
+
+
                 // canvas image data
                 if (ElementName === 'canvas') {
-                    attributes._dataURL = (n as HTMLCanvasElement).toDataURL()
+                    getCanvasAttributes(n, attributes)
                 }
                 // media elements
                 if (ElementName === 'audio' || ElementName === 'video') {
-                    attributes._mediaState = (n as HTMLMediaElement).paused
-                        ? 'paused'
-                        : 'played'
+                    getMediaAttributes(n, attributes)
                 }
+
                 return {
                     originId,
                     type: NodeType.Element,
@@ -136,12 +76,7 @@ class NodeCaptor {
                     n.parentNode && (n.parentNode as HTMLElement).tagName
                 let textContent = (n as Text).textContent
                 const isCSSRules = parentElementName === 'STYLE' ? true : undefined
-                if (isCSSRules && textContent) {
-                    textContent = absoluteToStylesheet(
-                        textContent,
-                        location.href,
-                    )
-                }
+                
                 if (parentElementName === 'SCRIPT') {
                     textContent = 'SCRIPT_PLACEHOLDER'
                 }
@@ -198,3 +133,87 @@ class NodeCaptor {
             DocumentNodesMap]
     }
 }
+
+function getGlobalAttribute(n: Node, doc: Document, attributes: attributes): void {
+    const nodeAttr = Array.from((n as HTMLElement).attributes)
+    for (const { name, value } of nodeAttr) {
+        attributes[name] = transformAttribute(doc, name, value)
+    }
+    // Get the scrolling value
+    if ((n as HTMLElement).scrollLeft) {
+        attributes._scrollLeft = (n as HTMLElement).scrollLeft
+    }
+    if ((n as HTMLElement).scrollTop) {
+        attributes._scrollTop = (n as HTMLElement).scrollTop
+    }
+    // Get the node size
+    const {
+        width,
+        height,
+    } = (n as HTMLElement).getBoundingClientRect()
+    attributes._width = `${width}px`
+    attributes._height = `${height}px`
+}
+
+function getExternalCssAttribute(n: Node, attributes: attributes): void {
+    const stylesheet = getStylesheet(this.documentRoot, n)
+
+    const cssText = getCssRulesString(
+        stylesheet as CSSStyleSheet,
+    )
+    if (cssText) {
+        delete attributes.rel
+        delete attributes.href
+        attributes.cssText = cssText
+    }
+}
+
+function getInternalCssAttribute(n: Node, attributes: attributes) {
+    const cssText = getCssRulesString(
+        (n as HTMLStyleElement).sheet as CSSStyleSheet,
+    )
+    if (cssText) {
+        attributes.cssText = cssText
+    }
+}
+
+function getFormFieldAttributes(n: Node, ElementName: String, attributes: attributes) {
+    if (
+        ElementName === 'input' ||
+        ElementName === 'textarea' ||
+        ElementName === 'select'
+    ) {
+        const value = (n as HTMLInputElement | HTMLTextAreaElement)
+            .value
+        if (
+            attributes.type !== 'radio' &&
+            attributes.type !== 'checkbox' &&
+            value
+        ) {
+            attributes.value = value
+        } else if ((n as HTMLInputElement).checked) {
+            attributes.checked = (n as HTMLInputElement).checked
+        }
+    }
+    if (ElementName === 'option') {
+        const selectValue = (n as HTMLOptionElement).parentElement
+        if (
+            attributes.value ===
+            (selectValue as HTMLSelectElement).value
+        ) {
+            attributes.selected = (n as HTMLOptionElement).selected
+        }
+    }
+}
+
+function getCanvasAttributes(n: Node, attributes: attributes) {
+    attributes._dataURL = (n as HTMLCanvasElement).toDataURL()
+}
+
+function getMediaAttributes(n: Node, attributes: attributes) {
+    attributes._mediaState = (n as HTMLMediaElement).paused
+        ? 'paused'
+        : 'played'
+}
+
+export default NodeCaptor
