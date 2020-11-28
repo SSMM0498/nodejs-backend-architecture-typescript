@@ -29,7 +29,7 @@ export type ElementNode = {
 export type TextNode = {
     type: NodeType.Text
     textContent: string
-    isCSSRules?: true
+    isCSSRules: boolean
 }
 
 /**

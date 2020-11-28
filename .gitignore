@@ -2,4 +2,7 @@
 node_modules/
 coverage/
 .nyc_output/
+build/
+dist/
+test/
 main.ts

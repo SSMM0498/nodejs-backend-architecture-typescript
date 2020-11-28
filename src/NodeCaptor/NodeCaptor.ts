@@ -1,33 +1,37 @@
-import { String } from "globalthis/implementation"
-import { ElementFlags } from "typescript"
 import { NodeCaptured, DocumentNodesMap, NodeFormated, NodeType, ElementNode, TextNode, attributes, } from "./types"
 import { transformAttribute, getStylesheet, getCssRulesString } from "./utils"
 
 class NodeCaptor {
     private currentId: number
+    private currentRootId: number
     private documentRoot: Document
 
     constructor(n: Document) {
-        this.currentId = 1
+        this.currentId = 0
+        this.currentRootId = 1
         this.documentRoot = n
     }
 
     /**
-     * captureNode
+     * capture the node n
+     * @param Node : Node to capture
+     * @returns (ElementNode | TextNode) & { originId?: number } | false
      */
-    public captureNode(n: Node): (ElementNode | TextNode) & { originId?: number } | false {
+    public captureNode(n: Node, origin?: number): (ElementNode | TextNode) & { originId?: number } | false {
         let originId: number | undefined
-        if (((this.documentRoot as unknown) as NodeFormated)._fnode) {
-            const docId = ((this.documentRoot as unknown) as NodeFormated)._fnode.originId;
-            originId = docId === 1 ? undefined : docId;
+        if ((n as Node).ownerDocument === this.documentRoot) {
+            originId = 0
+        } else {
+            originId = this.currentRootId
         }
+
         switch (n.nodeType) {
             case n.ELEMENT_NODE:
                 if ((n as HTMLElement).classList.contains('norecord')) {
                     return false;
                 }
                 // Get the tag name
-                const ElementName = (n as HTMLElement).tagName
+                const ElementName = (n as HTMLElement).tagName.toLowerCase()
                 let attributes: attributes = {}
 
                 // Get global attribute
@@ -36,19 +40,14 @@ class NodeCaptor {
                 // Get the css rules
                 // external css
                 if (ElementName === 'link') {
-                    getExternalCssAttribute(n, attributes)
+                    getExternalCssAttribute(n, this.documentRoot, attributes)
                 }
                 // internal css
                 if (ElementName === 'style') {
                     getInternalCssAttribute(n, attributes)
                 }
                 // Get form fields attributes
-                if (
-                    ElementName === 'input' ||
-                    ElementName === 'textarea' ||
-                    ElementName === 'select' ||
-                    ElementName === 'option'
-                ) {
+                if (ElementName === 'input' || ElementName === 'textarea' || ElementName === 'select' || ElementName === 'option') {
                     getFormFieldAttributes(n, ElementName, attributes)
                 }
 
@@ -74,17 +73,23 @@ class NodeCaptor {
                 // So just let it be undefined which is ok in this use case.
                 const parentElementName =
                     n.parentNode && (n.parentNode as HTMLElement).tagName
-                let textContent = (n as Text).textContent
-                const isCSSRules = parentElementName === 'STYLE' ? true : undefined
-                
+                let textContent = (n as Text).textContent?.trim()
+
+                const isCSSRules = parentElementName === 'STYLE' ? true : false
+
                 if (parentElementName === 'SCRIPT') {
                     textContent = 'SCRIPT_PLACEHOLDER'
                 }
-                return {
-                    originId,
-                    type: NodeType.Text,
-                    textContent: textContent || '',
-                    isCSSRules,
+
+                if (textContent && !isCSSRules) {
+                    return {
+                        originId,
+                        type: NodeType.Text,
+                        textContent: textContent || '',
+                        isCSSRules,
+                    }
+                } else {
+                    return false
                 }
             default:
                 return false
@@ -92,9 +97,13 @@ class NodeCaptor {
     }
 
     /**
-     * formatNode
+     * format the node currentNode
+     * @param Node : Node to format
+     * @returns NodeCaptured
      */
-    public formatNode(currentNode: Node | NodeFormated, map: DocumentNodesMap): NodeCaptured | null {
+    public formatNode(currentNode: Node | NodeFormated | null, map: DocumentNodesMap): NodeCaptured | null {
+        if (!currentNode) return null
+
         const _capturedNode = this.captureNode(currentNode as Node)
 
         if (!_capturedNode) return null
@@ -121,6 +130,24 @@ class NodeCaptor {
             }
         }
 
+        if (
+            capturedNode.type === NodeType.Element &&
+            capturedNode.ElementName === 'iframe'
+        ) {
+            const iframeDoc = (currentNode as HTMLIFrameElement).contentDocument;
+            if (iframeDoc) {
+                const iframeElements = Array.from((iframeDoc as Document).childNodes);
+                const parsedIframeNode = this.formatNode(
+                    iframeElements[1],
+                    map,
+                );
+                if (parsedIframeNode) {
+                    capturedNode.childNodes.push(parsedIframeNode);
+                }
+                this.currentRootId++
+            }
+        }
+
         return capturedNode
     }
 
@@ -129,8 +156,8 @@ class NodeCaptor {
      */
     public capture(): [NodeCaptured | null, DocumentNodesMap] {
         const DocumentNodesMap: DocumentNodesMap = {}
-        return [this.formatNode(this.documentRoot, DocumentNodesMap),
-            DocumentNodesMap]
+        const n = Array.from((this.documentRoot as Node).childNodes)
+        return [this.formatNode((n[1]), DocumentNodesMap), DocumentNodesMap]
     }
 }
 
@@ -155,8 +182,8 @@ function getGlobalAttribute(n: Node, doc: Document, attributes: attributes): voi
     attributes._height = `${height}px`
 }
 
-function getExternalCssAttribute(n: Node, attributes: attributes): void {
-    const stylesheet = getStylesheet(this.documentRoot, n)
+function getExternalCssAttribute(n: Node, doc: Document, attributes: attributes): void {
+    const stylesheet = getStylesheet(doc, n)
 
     const cssText = getCssRulesString(
         stylesheet as CSSStyleSheet,
@@ -169,15 +196,13 @@ function getExternalCssAttribute(n: Node, attributes: attributes): void {
 }
 
 function getInternalCssAttribute(n: Node, attributes: attributes) {
-    const cssText = getCssRulesString(
-        (n as HTMLStyleElement).sheet as CSSStyleSheet,
-    )
+    const cssText = getCssRulesString((n as HTMLStyleElement).sheet as CSSStyleSheet)
     if (cssText) {
         attributes.cssText = cssText
     }
 }
 
-function getFormFieldAttributes(n: Node, ElementName: String, attributes: attributes) {
+function getFormFieldAttributes(n: Node, ElementName: string, attributes: attributes) {
     if (
         ElementName === 'input' ||
         ElementName === 'textarea' ||
