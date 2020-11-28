@@ -1,0 +1,13 @@
+body {
+    margin: 0;
+    background: white;
+}
+
+p {
+    color: red;
+    background: gray;
+}
+
+body>p {
+    color: yellow;
+}
