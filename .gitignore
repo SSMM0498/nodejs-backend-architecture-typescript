@@ -4,5 +4,4 @@ coverage/
 .nyc_output/
 build/
 dist/
-integration*
 main.ts
