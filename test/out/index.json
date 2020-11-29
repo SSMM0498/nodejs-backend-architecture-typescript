@@ -1,0 +1,342 @@
+{
+    "nodeId": 0,
+    "originId": 0,
+    "type": 0,
+    "ElementName": "html",
+    "attributes": {
+        "lang": "en",
+        "_width": "603px",
+        "_height": "285.875px"
+    },
+    "childNodes": [
+        {
+            "nodeId": 3,
+            "originId": 0,
+            "type": 0,
+            "ElementName": "head",
+            "attributes": {
+                "_width": "0px",
+                "_height": "0px"
+            },
+            "childNodes": [
+                {
+                    "nodeId": 4,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "meta",
+                    "attributes": {
+                        "charset": "UTF-8",
+                        "_width": "0px",
+                        "_height": "0px"
+                    },
+                    "childNodes": []
+                },
+                {
+                    "nodeId": 5,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "meta",
+                    "attributes": {
+                        "name": "viewport",
+                        "content": "width=device-width, initial-scale=1.0",
+                        "_width": "0px",
+                        "_height": "0px"
+                    },
+                    "childNodes": []
+                },
+                {
+                    "nodeId": 6,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "title",
+                    "attributes": {
+                        "_width": "0px",
+                        "_height": "0px"
+                    },
+                    "childNodes": [
+                        {
+                            "nodeId": 7,
+                            "originId": 0,
+                            "type": 1,
+                            "textContent": "Test",
+                            "isCSSRules": false
+                        }
+                    ]
+                },
+                {
+                    "nodeId": 8,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "link",
+                    "attributes": {
+                        "_width": "0px",
+                        "_height": "0px",
+                        "cssText": "body { margin: 0px; background: white; }p { color: red; background: gray; }body > p { color: yellow; }"
+                    },
+                    "childNodes": []
+                },
+                {
+                    "nodeId": 9,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "style",
+                    "attributes": {
+                        "_width": "0px",
+                        "_height": "0px",
+                        "cssText": "p { color: rgb(16, 16, 16); }"
+                    },
+                    "childNodes": []
+                }
+            ]
+        },
+        {
+            "nodeId": 10,
+            "originId": 0,
+            "type": 0,
+            "ElementName": "body",
+            "attributes": {
+                "_width": "603px",
+                "_height": "264.4375px"
+            },
+            "childNodes": [
+                {
+                    "nodeId": 11,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "h1",
+                    "attributes": {
+                        "_width": "603px",
+                        "_height": "37px"
+                    },
+                    "childNodes": [
+                        {
+                            "nodeId": 12,
+                            "originId": 0,
+                            "type": 1,
+                            "textContent": "My test file",
+                            "isCSSRules": false
+                        }
+                    ]
+                },
+                {
+                    "nodeId": 13,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "p",
+                    "attributes": {
+                        "_width": "603px",
+                        "_height": "36px"
+                    },
+                    "childNodes": [
+                        {
+                            "nodeId": 14,
+                            "originId": 0,
+                            "type": 1,
+                            "textContent": "Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi fugiat dignissimos reiciendis sint sunt hic.",
+                            "isCSSRules": false
+                        }
+                    ]
+                },
+                {
+                    "nodeId": 15,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "iframe",
+                    "attributes": {
+                        "src": "http://127.0.0.1:5500/test/html/basic.html",
+                        "frameborder": "0",
+                        "_width": "300px",
+                        "_height": "150px"
+                    },
+                    "childNodes": [
+                        {
+                            "nodeId": 16,
+                            "originId": 1,
+                            "type": 0,
+                            "ElementName": "html",
+                            "attributes": {
+                                "lang": "en",
+                                "_width": "300px",
+                                "_height": "79.875px"
+                            },
+                            "childNodes": [
+                                {
+                                    "nodeId": 19,
+                                    "originId": 1,
+                                    "type": 0,
+                                    "ElementName": "head",
+                                    "attributes": {
+                                        "_width": "0px",
+                                        "_height": "0px"
+                                    },
+                                    "childNodes": [
+                                        {
+                                            "nodeId": 20,
+                                            "originId": 1,
+                                            "type": 0,
+                                            "ElementName": "meta",
+                                            "attributes": {
+                                                "charset": "UTF-8",
+                                                "_width": "0px",
+                                                "_height": "0px"
+                                            },
+                                            "childNodes": []
+                                        },
+                                        {
+                                            "nodeId": 21,
+                                            "originId": 1,
+                                            "type": 0,
+                                            "ElementName": "meta",
+                                            "attributes": {
+                                                "name": "viewport",
+                                                "content": "width=device-width, initial-scale=1.0",
+                                                "_width": "0px",
+                                                "_height": "0px"
+                                            },
+                                            "childNodes": []
+                                        },
+                                        {
+                                            "nodeId": 22,
+                                            "originId": 1,
+                                            "type": 0,
+                                            "ElementName": "meta",
+                                            "attributes": {
+                                                "http-equiv": "X-UA-Compatible",
+                                                "content": "ie=edge",
+                                                "_width": "0px",
+                                                "_height": "0px"
+                                            },
+                                            "childNodes": []
+                                        },
+                                        {
+                                            "nodeId": 23,
+                                            "originId": 1,
+                                            "type": 0,
+                                            "ElementName": "title",
+                                            "attributes": {
+                                                "_width": "0px",
+                                                "_height": "0px"
+                                            },
+                                            "childNodes": [
+                                                {
+                                                    "nodeId": 24,
+                                                    "originId": 1,
+                                                    "type": 1,
+                                                    "textContent": "Document",
+                                                    "isCSSRules": false
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "nodeId": 25,
+                                    "originId": 1,
+                                    "type": 0,
+                                    "ElementName": "body",
+                                    "attributes": {
+                                        "_width": "284px",
+                                        "_height": "37px"
+                                    },
+                                    "childNodes": [
+                                        {
+                                            "nodeId": 26,
+                                            "originId": 1,
+                                            "type": 0,
+                                            "ElementName": "h1",
+                                            "attributes": {
+                                                "_width": "284px",
+                                                "_height": "37px"
+                                            },
+                                            "childNodes": [
+                                                {
+                                                    "nodeId": 27,
+                                                    "originId": 1,
+                                                    "type": 1,
+                                                    "textContent": "Title",
+                                                    "isCSSRules": false
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "nodeId": 28,
+                                            "originId": 1,
+                                            "type": 0,
+                                            "ElementName": "script",
+                                            "attributes": {
+                                                "type": "text/javascript",
+                                                "_width": "0px",
+                                                "_height": "0px"
+                                            },
+                                            "childNodes": [
+                                                {
+                                                    "nodeId": 29,
+                                                    "originId": 1,
+                                                    "type": 1,
+                                                    "textContent": "SCRIPT_PLACEHOLDER",
+                                                    "isCSSRules": false
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "nodeId": 30,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "script",
+                    "attributes": {
+                        "src": "http://127.0.0.1:5500/test/js/main.js",
+                        "_width": "0px",
+                        "_height": "0px"
+                    },
+                    "childNodes": []
+                },
+                {
+                    "nodeId": 31,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "script",
+                    "attributes": {
+                        "type": "module",
+                        "_width": "0px",
+                        "_height": "0px"
+                    },
+                    "childNodes": [
+                        {
+                            "nodeId": 32,
+                            "originId": 0,
+                            "type": 1,
+                            "textContent": "SCRIPT_PLACEHOLDER",
+                            "isCSSRules": false
+                        }
+                    ]
+                },
+                {
+                    "nodeId": 33,
+                    "originId": 0,
+                    "type": 0,
+                    "ElementName": "script",
+                    "attributes": {
+                        "type": "text/javascript",
+                        "_width": "0px",
+                        "_height": "0px"
+                    },
+                    "childNodes": [
+                        {
+                            "nodeId": 34,
+                            "originId": 0,
+                            "type": 1,
+                            "textContent": "SCRIPT_PLACEHOLDER",
+                            "isCSSRules": false
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

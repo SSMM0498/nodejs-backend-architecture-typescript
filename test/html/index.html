@@ -16,17 +16,16 @@
 <body>
     <h1>My test file</h1>
     <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi fugiat dignissimos reiciendis sint sunt hic.
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi fugiat dignissimos.
     </p>
     <iframe src="./basic.html" frameborder="0"></iframe>
-    <!-- <script type="module" src="../../dist/arkad-recorder.js"></script> -->
     <script src="../js/main.js"></script>
     <script type="module">
         import { NodeCaptor } from "../../dist/arkad-recorder.js"
         window.onload = function () {
             var capt = new NodeCaptor(document)
             var firstcapt = capt.capture()
-            console.log(firstcapt)
+            console.log(JSON.stringify(firstcapt[0]))
         }
     </script>
 </body>
