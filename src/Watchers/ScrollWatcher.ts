@@ -20,8 +20,8 @@ class ScrollWatcher {
     /**
      * capture
      */
-    private capture(evt: UIEvent): void {
-        throttle<UIEvent>((evt) => {
+    private capture(evt: UIEvent): ((evt: UIEvent) => void) {
+        return throttle<UIEvent>((evt) => {
             const id = mirror.getId(evt.target as NodeFormated)
             if (evt.target === document) {
                 const scrollEl = (document.scrollingElement || document.documentElement)!

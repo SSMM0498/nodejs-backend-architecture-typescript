@@ -4,16 +4,22 @@ import MouseMovementWatcher from "../Watchers/MouseMovementWatcher";
 import MouseInteractionWatcher from "../Watchers/MouseInteractionWatcher";
 import InputWatcher from "../Watchers/InputWatcher";
 import CSSRuleWatcher from "../Watchers/CSSRuleWatcher";
+import NodeCaptor from "../NodeCaptor/NodeCaptor";
 
 class Recorder {
-    public eventsTimeLine: Array<eventWithTime>
+    public eventsTimeLine: Array<eventWithTime> = []
+    public nodeCaptor: NodeCaptor
 
-    constructor() {  }
+    constructor(document: Document) {
+        this.nodeCaptor = new NodeCaptor(document)
+    }
 
     /**
      * startRecording
      */
-    public startRecording() {
+    public start() {
+        console.log('start');
+        // firstNodeCapture = this.nodeCaptor.capture();
         // Initialize all watcher
         const scrollHandler = new ScrollWatcher(this.addNewEvent())
         const mouseMoveHandler = new MouseMovementWatcher(this.addNewEvent())
@@ -27,6 +33,13 @@ class Recorder {
         mouseInteractionHandler.watch()
         inputHandler.watch()
         cssRulesHandler.watch()
+    }
+
+    /**
+     * stop
+     */
+    public stop() {
+        console.log(this.eventsTimeLine);
     }
 
     /**

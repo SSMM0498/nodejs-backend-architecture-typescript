@@ -28,7 +28,7 @@ class MouseInteractionWatcher {
     /**
      * capture
      */
-    private capture(eventKey: keyof typeof MouseInteractions) {
+    private capture(eventKey: keyof typeof MouseInteractions) : ((event: MouseEvent | TouchEvent) => void) {
         return (event: MouseEvent | TouchEvent) => {
             const id = mirror.getId(event.target as NodeFormated)
             const { clientX, clientY } = isTouchEvent(event)
