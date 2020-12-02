@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "target": "ES5",
     "noImplicitAny": true,
     "strictNullChecks": true,
     "removeComments": true,
@@ -8,7 +9,8 @@
     "sourceMap": false,
     "rootDir": "src",
     "outDir": "build",
-    "lib": ["es6", "dom"]
+    "lib": ["es6", "dom"],
+    "downlevelIteration": true
   },
   "compileOnSave": true,
   "exclude": ["test"],

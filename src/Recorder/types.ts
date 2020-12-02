@@ -1,26 +1,15 @@
 import { NodeCaptured, DocumentNodesMap, NodeFormated } from '../NodeCaptor/types'
 
 export enum EventType {
-    DomContentLoaded,
-    Load,
-    FullSnapshot,
-    IncrementalSnapshot,
-    Meta,
-    Custom
+    FullCapture,
+    IncrementalCapture
 }
 
-export type domContentLoadedEvent = {
-    type: EventType.DomContentLoaded
-    data: {}
-}
-
-export type loadedEvent = {
-    type: EventType.Load
-    data: {}
-}
-
-export type fullSnapshotEvent = {
-    type: EventType.FullSnapshot
+/**
+ * Event saved when all nodes states are captured
+ */
+export type fullCaptureEvent = {
+    type: EventType.FullCapture
     data: {
         node: NodeCaptured
         initialOffset: {
@@ -30,30 +19,17 @@ export type fullSnapshotEvent = {
     }
 }
 
-export type incrementalSnapshotEvent = {
-    type: EventType.IncrementalSnapshot
+/**
+ * Event saved when user triggered a watched event
+ */
+export type incrementalCaptureEvent = {
+    type: EventType.IncrementalCapture
     data: incrementalData
 }
 
-export type metaEvent = {
-    type: EventType.Meta
-    data: {
-        href: string
-        width: number
-        height: number
-    }
-}
-
-export type customEvent<T = unknown> = {
-    type: EventType.Custom
-    data: {
-        tag: string
-        payload: T
-    }
-}
-
-export type styleSheetEvent = {}
-
+/**
+ * Type of event which triggered the incremental capture
+ */
 export enum IncrementalSource {
     Mutation,
     MouseMove,
@@ -118,59 +94,16 @@ export type incrementalData =
     | textSelectionData
 
 export type event =
-    | domContentLoadedEvent
-    | loadedEvent
-    | fullSnapshotEvent
-    | incrementalSnapshotEvent
-    | metaEvent
-    | customEvent
+    | fullCaptureEvent
+    | incrementalCaptureEvent
 
 export type eventWithTime = event & {
     timestamp: number
     delay?: number
 }
-
-export type blockClass = string | RegExp
-
-export type recordOptions<T> = {
-    emit?: (e: T, isCheckout?: boolean) => void
-    checkoutEveryNth?: number
-    checkoutEveryNms?: number
-    blockClass?: blockClass
-    ignoreClass?: string
-    maskAllInputs?: boolean
-    inlineStylesheet?: boolean
-    hooks?: hooksParam
-    mousemoveWait?: number
-}
-
-export type observerParam = {
-    mutationCb: mutationCallBack
-    mousemoveCb: mousemoveCallBack
-    mouseInteractionCb: mouseInteractionCallBack
-    scrollCb: scrollCallback
-    viewportResizeCb: viewportResizeCallback
-    inputCb: inputCallback
-    mediaInteractionCb: mediaInteractionCallback
-    blockClass: blockClass
-    ignoreClass: string
-    maskAllInputs: boolean
-    inlineStylesheet: boolean
-    styleSheetRuleCb: styleSheetRuleCallback
-    mousemoveWait: number
-}
-
-export type hooksParam = {
-    mutation?: mutationCallBack
-    mousemove?: mousemoveCallBack
-    mouseInteraction?: mouseInteractionCallBack
-    scroll?: scrollCallback
-    viewportResize?: viewportResizeCallback
-    input?: inputCallback
-    mediaInteraction?: mediaInteractionCallback
-    styleSheetRule?: styleSheetRuleCallback
-}
-
+/**
+ * TODO:Check them
+ */
 export type mutationRecord = {
     type: string
     target: Node
@@ -224,13 +157,6 @@ type mutationCallbackParam = {
     adds: addedNodeMutation[]
 }
 
-export type mutationCallBack = (m: mutationCallbackParam) => void
-
-export type mousemoveCallBack = (
-    p: mousePosition[],
-    source: IncrementalSource.MouseMove | IncrementalSource.TouchMove,
-) => void
-
 export type mousePosition = {
     x: number
     y: number
@@ -258,15 +184,11 @@ type mouseInteractionParam = {
     y: number
 }
 
-export type mouseInteractionCallBack = (d: mouseInteractionParam) => void
-
 export type scrollPosition = {
     id: number
     x: number
     y: number
 }
-
-export type scrollCallback = (p: scrollPosition) => void
 
 export type styleSheetAddRule = {
     rule: string
@@ -283,21 +205,15 @@ export type styleSheetRuleParam = {
     adds?: styleSheetAddRule[]
 }
 
-export type styleSheetRuleCallback = (s: styleSheetRuleParam) => void
-
 export type viewportResizeDimension = {
     width: number
     height: number
 }
 
-export type viewportResizeCallback = (d: viewportResizeDimension) => void
-
 export type inputValue = {
     text: string
     isChecked: boolean
 }
-
-export type inputCallback = (v: inputValue & { id: number }) => void
 
 export const enum MediaInteractions {
     Play,
@@ -308,8 +224,6 @@ export type mediaInteractionParam = {
     type: MediaInteractions
     id: number
 }
-
-export type mediaInteractionCallback = (p: mediaInteractionParam) => void
 
 export type Mirror = {
     map: DocumentNodesMap
@@ -376,7 +290,7 @@ export enum ReplayerEvents {
     Resume = 'resume',
     Resize = 'resize',
     Finish = 'finish',
-    FullsnapshotRebuilt = 'fullsnapshot-Rebuilt',
+    FullCaptureRebuilt = 'fullCapture-Rebuilt',
     LoadStylesheetStart = 'load-stylesheet-start',
     LoadStylesheetEnd = 'load-stylesheet-end',
     SkipStart = 'skip-start',

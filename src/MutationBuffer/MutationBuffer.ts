@@ -6,8 +6,6 @@ import { NodeCaptor } from '../index'
 
 import {
     mutationRecord,
-    blockClass,
-    mutationCallBack,
     textCursor,
     attributeCursor,
     removedNodeMutation,
@@ -289,7 +287,7 @@ export default class MutationBuffer {
         };
 
         const evt: eventWithTime = {
-            type: EventType.IncrementalSnapshot,
+            type: EventType.IncrementalCapture,
             data: {
                 source: IncrementalSource.Mutation,
                 ...payload,

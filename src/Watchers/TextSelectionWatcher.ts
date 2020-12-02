@@ -23,7 +23,7 @@ class TextSelectionWatcher {
         const sel = document.getSelection()
         if (sel) {
             this.callBack({
-                type: EventType.IncrementalSnapshot,
+                type: EventType.IncrementalCapture,
                 data: {
                     source: IncrementalSource.TextSelection,
                     selection: sel,

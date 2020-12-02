@@ -70,7 +70,7 @@ class InputWatcher {
             this.lastInputValueMap.set(target, v)
             const id = mirror.getId(target as NodeFormated)
             this.callBack({
-                type: EventType.IncrementalSnapshot,
+                type: EventType.IncrementalCapture,
                 data: {
                     source: IncrementalSource.Input,
                     id,

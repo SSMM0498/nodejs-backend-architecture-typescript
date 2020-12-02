@@ -35,7 +35,7 @@ class MouseInteractionWatcher {
                 ? event.changedTouches[0]
                 : event
             this.callBack({
-                type: EventType.IncrementalSnapshot,
+                type: EventType.IncrementalCapture,
                 data: {
                     source: IncrementalSource.MouseInteraction,
                     type: MouseInteractions[eventKey],

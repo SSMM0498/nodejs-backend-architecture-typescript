@@ -31,7 +31,7 @@ class MouseMovementWatcher {
                 return p
             })
             this.callBack({
-                type: EventType.IncrementalSnapshot,
+                type: EventType.IncrementalCapture,
                 data: {
                     source: isTouch ? IncrementalSource.TouchMove : IncrementalSource.MouseMove,
                     positions: pos,

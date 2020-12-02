@@ -51,7 +51,7 @@ class CSSRuleWatcher {
     private capture(evt: (styleSheetRuleParam & { type: string })) {
         if (evt.type === 'insert') {
             this.callBack({
-                type: EventType.IncrementalSnapshot,
+                type: EventType.IncrementalCapture,
                 data: {
                     source: IncrementalSource.StyleSheetRule,
                     id: evt.id,
@@ -61,7 +61,7 @@ class CSSRuleWatcher {
             })
         } else {
             this.callBack({
-                type: EventType.IncrementalSnapshot,
+                type: EventType.IncrementalCapture,
                 data: {
                     source: IncrementalSource.StyleSheetRule,
                     id: evt.id,

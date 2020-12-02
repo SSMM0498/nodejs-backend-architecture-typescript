@@ -26,7 +26,7 @@ class ScrollWatcher {
             if (evt.target === document) {
                 const scrollEl = (document.scrollingElement || document.documentElement)!
                 this.callBack({
-                    type: EventType.IncrementalSnapshot,
+                    type: EventType.IncrementalCapture,
                     data: {
                         source: IncrementalSource.Scroll,
                         id,
@@ -37,7 +37,7 @@ class ScrollWatcher {
                 })
             } else {
                 this.callBack({
-                    type: EventType.IncrementalSnapshot,
+                    type: EventType.IncrementalCapture,
                     data: {
                         source: IncrementalSource.Scroll,
                         id,
