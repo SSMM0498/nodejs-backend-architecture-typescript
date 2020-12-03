@@ -4,7 +4,6 @@ import {
     throttleOptions,
     listenerHandler,
     hookResetter,
-    blockClass,
 } from './types'
 
 export function on(

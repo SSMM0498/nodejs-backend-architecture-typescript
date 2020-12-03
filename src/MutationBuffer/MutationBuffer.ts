@@ -170,7 +170,6 @@ export default class MutationBuffer {
     public emit = () => {
         // delay any modification of the mirror until this function
         // so that the mirror for takeFullSnapshot doesn't get mutated while it's event is being processed
-
         const adds: addedNodeMutation[] = [];
 
         /**

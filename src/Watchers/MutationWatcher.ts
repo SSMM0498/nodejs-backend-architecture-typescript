@@ -3,8 +3,9 @@ import { eventWithTime } from "../Recorder/types";
 
 class MutationWatcher {
     public mutationBuffer: MutationBuffer
-    private observer: MutationObserver;
+    private mutationObserver: MutationObserver
     private callBack: (p: eventWithTime) => void
+
     constructor(cb: (p: eventWithTime) => void, mb: MutationBuffer) {
         this.callBack = cb
         this.mutationBuffer = mb
@@ -14,9 +15,8 @@ class MutationWatcher {
      * watch
      */
     public watch() {
-        
         this.mutationBuffer.init(this.callBack);
-        this.observer = new MutationObserver(
+        this.mutationObserver = new MutationObserver(
             this.mutationBuffer.processMutations.bind(this.mutationBuffer)
         );
     }
@@ -25,7 +25,7 @@ class MutationWatcher {
      * capture
      */
     public capture() {
-        this.observer.observe(document, {
+        this.mutationObserver.observe(document, {
             attributes: true,
             attributeOldValue: true,
             characterData: true,
@@ -35,3 +35,5 @@ class MutationWatcher {
         });
     }
 }
+
+export default MutationWatcher

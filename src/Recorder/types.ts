@@ -1,6 +1,7 @@
 import { NodeCaptured, DocumentNodesMap, NodeFormated } from '../NodeCaptor/types'
 
 export enum EventType {
+    Meta,
     FullCapture,
     IncrementalCapture
 }
@@ -26,6 +27,18 @@ export type incrementalCaptureEvent = {
     type: EventType.IncrementalCapture
     data: incrementalData
 }
+
+/**
+ * Event saved when a full capture is done
+ */
+export type metaEvent = {
+    type: EventType.Meta;
+    data: {
+        href: string;
+        width: number;
+        height: number;
+    };
+};
 
 /**
  * Type of event which triggered the incremental capture
@@ -96,6 +109,7 @@ export type incrementalData =
 export type event =
     | fullCaptureEvent
     | incrementalCaptureEvent
+    | metaEvent
 
 export type eventWithTime = event & {
     timestamp: number
