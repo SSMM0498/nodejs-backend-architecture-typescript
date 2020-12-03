@@ -14,8 +14,8 @@ class MouseMovementWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('mousemove', this.capture, options)
-        document.addEventListener('touchmove', this.capture, options)
+        document.addEventListener('mousemove', (e) => this.capture(e), options)
+        document.addEventListener('touchmove', (e) => this.capture(e), options)
     }
 
     /**
@@ -24,6 +24,7 @@ class MouseMovementWatcher {
     private capture(evt: MouseEvent | TouchEvent): void  {
         let positions: mousePosition[] = []
         let timeBaseline: number | null
+
         const wrappedCb = throttle((isTouch: boolean) => {
             const totalOffset = Date.now() - timeBaseline!
             const pos = positions.map((p) => {
@@ -42,7 +43,7 @@ class MouseMovementWatcher {
             timeBaseline = null
         }, 500)
     
-        const updatePosition = throttle<MouseEvent | TouchEvent>(
+        throttle<MouseEvent | TouchEvent>(
             (evt) => {
                 const { target } = evt
                 const { clientX, clientY } = isTouchEvent(evt)
@@ -63,7 +64,7 @@ class MouseMovementWatcher {
             {
                 trailing: false,
             },
-        )
+        )(evt)
     }
 }
 

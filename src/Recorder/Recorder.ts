@@ -9,6 +9,7 @@ import MouseInteractionWatcher from "../Watchers/MouseInteractionWatcher";
 import InputWatcher from "../Watchers/InputWatcher";
 import CSSRuleWatcher from "../Watchers/CSSRuleWatcher";
 import MutationWatcher from "../Watchers/MutationWatcher";
+import TextSelectionWatcher from "../Watchers/TextSelectionWatcher";
 
 class Recorder {
     public eventsTimeLine: Array<eventWithTime> = []    //  Array for storing all capture events
@@ -39,6 +40,7 @@ class Recorder {
         const mouseMoveHandler = new MouseMovementWatcher(addNewEventCb())
         const mouseInteractionHandler = new MouseInteractionWatcher(addNewEventCb())
         const inputHandler = new InputWatcher(addNewEventCb())
+        const textSelectionHandler = new TextSelectionWatcher(addNewEventCb())
         const cssRulesHandler = new CSSRuleWatcher(addNewEventCb())
         const mutationHandler = new MutationWatcher(addNewEventCb(), this.mutationBuffer);
         
@@ -47,6 +49,7 @@ class Recorder {
         mouseMoveHandler.watch()
         mouseInteractionHandler.watch()
         inputHandler.watch()
+        textSelectionHandler.watch()
         cssRulesHandler.watch()
         mutationHandler.watch()
     }

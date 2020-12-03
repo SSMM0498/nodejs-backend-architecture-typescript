@@ -16,8 +16,8 @@ class InputWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('input', this.capture, options)
-        document.addEventListener('change', this.capture, options)
+        document.addEventListener('input', (e) => this.capture(e), options)
+        document.addEventListener('change', (e) => this.capture(e), options)
     }
 
     /**

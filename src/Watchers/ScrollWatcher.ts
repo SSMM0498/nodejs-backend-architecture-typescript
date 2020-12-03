@@ -14,14 +14,14 @@ class ScrollWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('scroll', this.capture, options)
+        document.addEventListener('scroll', (e) => this.capture(e as UIEvent), options)
     }
 
     /**
      * capture
      */
-    private capture(evt: UIEvent): ((evt: UIEvent) => void) {
-        return throttle<UIEvent>((evt) => {
+    private capture(evt: UIEvent): void {
+        throttle<UIEvent>((evt) => {
             const id = mirror.getId(evt.target as NodeFormated)
             if (evt.target === document) {
                 const scrollEl = (document.scrollingElement || document.documentElement)!
@@ -29,7 +29,7 @@ class ScrollWatcher {
                     type: EventType.IncrementalCapture,
                     data: {
                         source: IncrementalSource.Scroll,
-                        id,
+                        id: -100,
                         x: scrollEl.scrollLeft,
                         y: scrollEl.scrollTop,
                     },
@@ -47,7 +47,7 @@ class ScrollWatcher {
                     timestamp: Date.now()
                 })
             }
-        }, 100)
+        }, 100)(evt)
     }
 }
 

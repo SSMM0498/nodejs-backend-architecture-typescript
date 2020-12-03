@@ -13,7 +13,7 @@ class TextSelectionWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('selectionchange',this.capture, options)
+        document.addEventListener('selectionchange', (e) => this.capture(e), options)
     }
 
     /**
