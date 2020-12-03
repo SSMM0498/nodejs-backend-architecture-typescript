@@ -119,9 +119,9 @@ export default class MutationBuffer {
     private texts: textCursor[] = [];
     private attributes: attributeCursor[] = [];
     private removes: removedNodeMutation[] = [];
-    private mapRemoves: Node[] = [];
 
-    private movedMap: Record<string, true> = {};
+    private removedNodeMap: Node[] = [];
+    private movedNodeMap: Record<string, true> = {};
 
     /**
      * the browser MutationObserver emits multiple mutations after
@@ -140,9 +140,9 @@ export default class MutationBuffer {
      * this also causes newly added nodes will not be serialized with id ASAP,
      * which means all the id related calculation should be lazy too.
      */
-    private addedSet = new Set<Node>();
-    private movedSet = new Set<Node>();
-    private droppedSet = new Set<Node>();
+    private addedNodeSet = new Set<Node>();
+    private movedNodeSet = new Set<Node>();
+    private droppedNodeSet = new Set<Node>();
 
     private emissionCallback: (p: eventWithTime) => void;
 
@@ -177,7 +177,7 @@ export default class MutationBuffer {
          * Sometimes child node may be pushed before its newly added
          * parent, so we init a queue to store these nodes.
          */
-        const addList = new DoubleLinkedList();
+        const addedNodeList = new DoubleLinkedList();
         const getNextId = (n: Node): number | null => {
             let nextId =
                 n.nextSibling && mirror.getId((n.nextSibling as unknown) as NodeFormated);
@@ -194,7 +194,7 @@ export default class MutationBuffer {
             const parentId = mirror.getId((n.parentNode as Node) as NodeFormated);
             const nextId = getNextId(n);
             if (parentId === -1 || nextId === -1) {
-                return addList.addNode(n);
+                return addedNodeList.addNode(n);
             }
             adds.push({
                 parentId,
@@ -203,34 +203,34 @@ export default class MutationBuffer {
             });
         };
 
-        while (this.mapRemoves.length) {
-            mirror.removeNodeFromMap(this.mapRemoves.shift() as NodeFormated);
+        while (this.removedNodeMap.length) {
+            mirror.removeNodeFromMap(this.removedNodeMap.shift() as NodeFormated);
         }
 
-        for (const n of this.movedSet) {
+        for (const n of this.movedNodeSet) {
             if (
                 isParentRemoved(this.removes, n) &&
-                !this.movedSet.has(n.parentNode!)) {
+                !this.movedNodeSet.has(n.parentNode!)) {
                 continue;
             }
             pushAdd(n);
         }
 
-        for (const n of this.addedSet) {
+        for (const n of this.addedNodeSet) {
             if (
-                !isAncestorInSet(this.droppedSet, n) &&
+                !isAncestorInSet(this.droppedNodeSet, n) &&
                 !isParentRemoved(this.removes, n)
             ) {
                 pushAdd(n);
-            } else if (isAncestorInSet(this.movedSet, n)) {
+            } else if (isAncestorInSet(this.movedNodeSet, n)) {
                 pushAdd(n);
             } else {
-                this.droppedSet.add(n);
+                this.droppedNodeSet.add(n);
             }
         }
 
         let candidate: DoubleLinkedListNode | null = null;
-        while (addList.length) {
+        while (addedNodeList.length) {
             let node: DoubleLinkedListNode | null = null;
             if (candidate) {
                 const parentId = mirror.getId(
@@ -242,8 +242,8 @@ export default class MutationBuffer {
                 }
             }
             if (!node) {
-                for (let index = addList.length - 1; index >= 0; index--) {
-                    const _node = addList.get(index)!;
+                for (let index = addedNodeList.length - 1; index >= 0; index--) {
+                    const _node = addedNodeList.get(index)!;
                     const parentId = mirror.getId(
                         (_node.value.parentNode as Node) as NodeFormated,
                     );
@@ -263,7 +263,7 @@ export default class MutationBuffer {
                 break;
             }
             candidate = node.previous;
-            addList.removeNode(node.value);
+            addedNodeList.removeNode(node.value);
             pushAdd(node.value);
         }
 
@@ -309,10 +309,10 @@ export default class MutationBuffer {
         this.texts = [];
         this.attributes = [];
         this.removes = [];
-        this.addedSet = new Set<Node>();
-        this.movedSet = new Set<Node>();
-        this.droppedSet = new Set<Node>();
-        this.movedMap = {};
+        this.addedNodeSet = new Set<Node>();
+        this.movedNodeSet = new Set<Node>();
+        this.droppedNodeSet = new Set<Node>();
+        this.movedNodeMap = {};
 
         this.emissionCallback(evt);
     };
@@ -353,7 +353,7 @@ export default class MutationBuffer {
                 break;
             }
             case 'childList': {
-                m.addedNodes.forEach((n) => this.genAdds(n, m.target));
+                m.addedNodes.forEach((n) => this.handleAddedNode(n, m.target));
                 m.removedNodes.forEach((n) => {
                     const nodeId = mirror.getId(n as NodeFormated);
                     const parentId = mirror.getId(m.target as NodeFormated);
@@ -364,10 +364,10 @@ export default class MutationBuffer {
                         return;
                     }
                     // removed node has not been serialized yet, just remove it from the Set
-                    if (this.addedSet.has(n)) {
-                        deepDelete(this.addedSet, n);
-                        this.droppedSet.add(n);
-                    } else if (this.addedSet.has(m.target) && nodeId === -1) {
+                    if (this.addedNodeSet.has(n)) {
+                        deepDelete(this.addedNodeSet, n);
+                        this.droppedNodeSet.add(n);
+                    } else if (this.addedNodeSet.has(m.target) && nodeId === -1) {
                         /**
                          * If target was newly added and removed child node was
                          * not serialized, it means the child node has been removed
@@ -383,17 +383,17 @@ export default class MutationBuffer {
                          * and replay.
                          */
                     } else if (
-                        this.movedSet.has(n) &&
-                        this.movedMap[moveKey(nodeId, parentId)]
+                        this.movedNodeSet.has(n) &&
+                        this.movedNodeMap[moveKey(nodeId, parentId)]
                     ) {
-                        deepDelete(this.movedSet, n);
+                        deepDelete(this.movedNodeSet, n);
                     } else {
                         this.removes.push({
                             parentId,
                             id: nodeId,
                         });
                     }
-                    this.mapRemoves.push(n);
+                    this.removedNodeMap.push(n);
                 });
                 break;
             }
@@ -402,24 +402,24 @@ export default class MutationBuffer {
         }
     };
 
-    private genAdds = (n: Node | NodeFormated, target?: Node | NodeFormated) => {
+    private handleAddedNode = (n: Node | NodeFormated, target?: Node | NodeFormated) => {
         if (isBlocked(n, 'norecord')) {
             return;
         }
         if (isNodeFormated(n)) {
-            this.movedSet.add(n);
+            this.movedNodeSet.add(n);
             let targetId: number | null = null;
             if (target && isNodeFormated(target)) {
                 targetId = target._fnode.nodeId;
             }
             if (targetId) {
-                this.movedMap[moveKey(n._fnode.nodeId, targetId)] = true;
+                this.movedNodeMap[moveKey(n._fnode.nodeId, targetId)] = true;
             }
         } else {
-            this.addedSet.add(n);
-            this.droppedSet.delete(n);
+            this.addedNodeSet.add(n);
+            this.droppedNodeSet.delete(n);
         }
-        n.childNodes.forEach((childN) => this.genAdds(childN));
+        n.childNodes.forEach((childN) => this.handleAddedNode(childN));
     };
 }
 
@@ -429,6 +429,7 @@ export default class MutationBuffer {
  * like Set and Map, but currently Typescript does not support
  * that.
  */
+
 function deepDelete(addsSet: Set<Node>, n: Node) {
     addsSet.delete(n);
     n.childNodes.forEach((childN) => deepDelete(addsSet, childN));
