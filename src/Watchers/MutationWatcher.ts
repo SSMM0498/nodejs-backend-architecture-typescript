@@ -15,16 +15,10 @@ class MutationWatcher {
      * watch
      */
     public watch() {
-        this.mutationBuffer.init(this.callBack);
+        this.mutationBuffer.init(this.capture());
         this.mutationObserver = new MutationObserver(
             this.mutationBuffer.processMutations.bind(this.mutationBuffer)
         );
-    }
-
-    /**
-     * capture
-     */
-    public capture() {
         this.mutationObserver.observe(document, {
             attributes: true,
             attributeOldValue: true,
@@ -33,6 +27,13 @@ class MutationWatcher {
             childList: true,
             subtree: true,
         });
+    }
+
+    /**
+     * capture
+     */
+    public capture() : (p: eventWithTime) => void {
+        return this.callBack
     }
 }
 
