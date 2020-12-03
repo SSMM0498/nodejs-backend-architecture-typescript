@@ -1,8 +1,7 @@
 import {
     NodeFormated,
 } from '../NodeCaptor/types';
-
-import { NodeCaptor } from '../index'
+import NodeCaptor from '../NodeCaptor/NodeCaptor'
 
 import {
     mutationRecord,

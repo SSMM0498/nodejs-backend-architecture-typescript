@@ -1,13 +1,13 @@
 import { getWindowHeight, getWindowWidth, mirror } from "./utils";
 import { EventType, eventWithTime, IncrementalSource } from "./types";
 import MutationBuffer from "../MutationBuffer/MutationBuffer";
+import NodeCaptor from "../NodeCaptor/NodeCaptor";
 
 import ScrollWatcher from "../Watchers/ScrollWatcher";
 import MouseMovementWatcher from "../Watchers/MouseMovementWatcher";
 import MouseInteractionWatcher from "../Watchers/MouseInteractionWatcher";
 import InputWatcher from "../Watchers/InputWatcher";
 import CSSRuleWatcher from "../Watchers/CSSRuleWatcher";
-import NodeCaptor from "../NodeCaptor/NodeCaptor";
 import MutationWatcher from "../Watchers/MutationWatcher";
 
 class Recorder {
