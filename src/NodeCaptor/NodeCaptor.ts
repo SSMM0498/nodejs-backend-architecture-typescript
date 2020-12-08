@@ -178,8 +178,8 @@ function getGlobalAttribute(n: Node, doc: Document, attributes: attributes): voi
         width,
         height,
     } = (n as HTMLElement).getBoundingClientRect()
-    attributes._width = `${width}px`
-    attributes._height = `${height}px`
+    attributes.__width = `${width}px`
+    attributes.__height = `${height}px`
 }
 
 function getExternalCssAttribute(n: Node, doc: Document, attributes: attributes): void {
