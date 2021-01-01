@@ -3,18 +3,7 @@ import {
     Mirror,
     throttleOptions,
     listenerHandler,
-    hookResetter,
 } from './types'
-
-export function on(
-    type: string,
-    fn: EventListenerOrEventListenerObject,
-    target: Document | Window = document,
-): listenerHandler {
-    const options = { capture: true, passive: true }
-    target.addEventListener(type, fn, options)
-    return () => target.removeEventListener(type, fn, options)
-}
 
 export const mirror: Mirror = {
     map: {},
@@ -77,34 +66,6 @@ export function throttle<T>(
             }, remaining)
         }
     }
-}
-
-export function hookSetter<T>(
-    target: T,
-    key: string | number | symbol,
-    d: PropertyDescriptor,
-    isRevoked?: boolean,
-    win = window,
-): hookResetter {
-    const original = win.Object.getOwnPropertyDescriptor(target, key)
-    win.Object.defineProperty(
-        target,
-        key,
-        isRevoked
-            ? d
-            : {
-                  set(value) {
-                      // put hooked setter into event loop to avoid of set latency
-                      setTimeout(() => {
-                          d.set!.call(this, value)
-                      }, 0)
-                      if (original && original.set) {
-                          original.set.call(this, value)
-                      }
-                  },
-              },
-    )
-    return () => hookSetter(target, key, original || {}, true)
 }
 
 export function getWindowWidth(): number {
