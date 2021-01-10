@@ -24,11 +24,11 @@ type DoubleLinkedListNode = {
 };
 
 type NodeInLinkedList = Node & {
-    __ln: DoubleLinkedListNode;
+    _ln: DoubleLinkedListNode;
 };
 
 function isNodeInLinkedList(n: Node | NodeInLinkedList): n is NodeInLinkedList {
-    return '__ln' in n;
+    return '_ln' in n;
 }
 
 class DoubleLinkedList {
@@ -53,20 +53,20 @@ class DoubleLinkedList {
             previous: null,
             next: null,
         };
-        (n as NodeInLinkedList).__ln = node;
+        (n as NodeInLinkedList)._ln = node;
         if (n.previousSibling && isNodeInLinkedList(n.previousSibling)) {
-            const current = n.previousSibling.__ln.next;
+            const current = n.previousSibling._ln.next;
             node.next = current;
-            node.previous = n.previousSibling.__ln;
-            n.previousSibling.__ln.next = node;
+            node.previous = n.previousSibling._ln;
+            n.previousSibling._ln.next = node;
             if (current) {
                 current.previous = node;
             }
         } else if (n.nextSibling && isNodeInLinkedList(n.nextSibling)) {
-            const current = n.nextSibling.__ln.previous;
+            const current = n.nextSibling._ln.previous;
             node.previous = current;
-            node.next = n.nextSibling.__ln;
-            n.nextSibling.__ln.previous = node;
+            node.next = n.nextSibling._ln;
+            n.nextSibling._ln.previous = node;
             if (current) {
                 current.next = node;
             }
@@ -81,7 +81,7 @@ class DoubleLinkedList {
     }
 
     public removeNode(n: NodeInLinkedList) {
-        const current = n.__ln;
+        const current = n._ln;
         if (!this.head) {
             return;
         }
@@ -97,8 +97,8 @@ class DoubleLinkedList {
                 current.next.previous = current.previous;
             }
         }
-        if (n.__ln) {
-            delete n.__ln;
+        if (n._ln) {
+            delete n._ln;
         }
         this.length--;
     }
