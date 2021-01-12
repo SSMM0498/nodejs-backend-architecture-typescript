@@ -1,10 +1,22 @@
-import { NodeCaptured, DocumentNodesMap, NodeFormated, NodeType, ElementNode, TextNode, attributes, } from "./types"
-import { transformAttribute, getStylesheet, getCssRulesString } from "./utils"
+import { 
+    NodeCaptured,
+    DocumentNodesMap,
+    NodeFormated,
+    NodeType,
+    ElementNode,
+    TextNode,
+    attributes
+} from "./types"
+import {
+    transformAttribute,
+    getStylesheet,
+    getCssRulesString
+} from "./utils"
 
 class NodeCaptor {
-    private currentId: number
-    private currentRootId: number
-    private documentRoot: Document
+    private currentId: number       // id for the current node
+    private currentRootId: number   // id for the current root (document or iframe) node
+    private documentRoot: Document  // the root document element
 
     constructor(n: Document) {
         this.currentId = 0
@@ -14,6 +26,8 @@ class NodeCaptor {
 
     /**
      * capture the node n
+     * * retrieve the origin id
+     * * get tag name and needed attributes
      * @param Node : Node to capture
      * @returns (ElementNode | TextNode) & { originId?: number } | false
      */
@@ -51,7 +65,6 @@ class NodeCaptor {
                     getFormFieldAttributes(n, ElementName, attributes)
                 }
 
-
                 // canvas image data
                 if (ElementName === 'canvas') {
                     getCanvasAttributes(n, attributes)
@@ -73,13 +86,14 @@ class NodeCaptor {
                 // So just let it be undefined which is ok in this use case.
                 const parentElementName =
                     n.parentNode && (n.parentNode as HTMLElement).tagName
+                
+                if (parentElementName === 'SCRIPT') {
+                    return false;
+                }
+
                 let textContent = (n as Text).textContent?.trim()
 
                 const isCSSRules = parentElementName === 'STYLE' ? true : false
-
-                if (parentElementName === 'SCRIPT') {
-                    textContent = 'SCRIPT_PLACEHOLDER'
-                }
 
                 if (textContent && !isCSSRules) {
                     return {
@@ -110,6 +124,7 @@ class NodeCaptor {
 
         let nodeId = 1
 
+        // Determine the node id
         if ('_fnode' in currentNode) {
             nodeId = currentNode._fnode.nodeId
         } else {
@@ -121,6 +136,7 @@ class NodeCaptor {
 
         map[nodeId] = currentNode as NodeFormated
 
+        //  format and capture each child of the current node
         if (capturedNode.type === NodeType.Element) {
             for (const childNode of Array.from((currentNode as Node).childNodes)) {
                 const capturedChildNode = this.formatNode(childNode, map)
@@ -130,6 +146,7 @@ class NodeCaptor {
             }
         }
 
+        //  format and capture each element of the current node if it's an iframe
         if (
             capturedNode.type === NodeType.Element &&
             capturedNode.ElementName === 'iframe'
@@ -220,6 +237,7 @@ function getFormFieldAttributes(n: Node, ElementName: string, attributes: attrib
             attributes.checked = (n as HTMLInputElement).checked
         }
     }
+
     if (ElementName === 'option') {
         const selectValue = (n as HTMLOptionElement).parentElement
         if (
