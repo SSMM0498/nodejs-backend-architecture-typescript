@@ -5,8 +5,8 @@ import NodeCaptor from '../NodeCaptor/NodeCaptor'
 
 import {
     mutationRecord,
-    textCursor,
-    attributeCursor,
+    textNodeNewValue,
+    attributeNewValue,
     removedNodeMutation,
     addedNodeMutation,
     EventType,
@@ -41,6 +41,7 @@ class DoubleLinkedList {
         }
 
         let current = this.head;
+
         for (let index = 0; index < position; index++) {
             current = current?.next || null;
         }
@@ -97,53 +98,39 @@ class DoubleLinkedList {
                 current.next.previous = current.previous;
             }
         }
+
         if (n._ln) {
             delete n._ln;
         }
+
         this.length--;
     }
 }
 
 const moveKey = (id: number, parentId: number) => `${id}@${parentId}`;
+
 function isNodeFormated(n: Node | NodeFormated): n is NodeFormated {
     return '_fnode' in n;
 }
 
 /**
- * controls behaviour of a MutationObserver
+ * controls behaviour of MutationWatcher
  */
 export default class MutationBuffer {
     private frozen: boolean = false;
 
-    private texts: textCursor[] = [];
-    private attributes: attributeCursor[] = [];
-    private removes: removedNodeMutation[] = [];
+    private texts: textNodeNewValue[] = [];
+    private attributes: attributeNewValue[] = [];
+    private removes: removedNodeMutation[] = [];    //  Array for a removed node in a Mutation
 
-    private removedNodeMap: Node[] = [];
+    private removedNodeMap: Node[] = [];            //  Map for removed node
     private movedNodeMap: Record<string, true> = {};
 
-    /**
-     * the browser MutationObserver emits multiple mutations after
-     * a delay for performance reasons, making tracing added nodes hard
-     * in our `processMutations` callback function.
-     * For example, if we append an element el_1 into body, and then append
-     * another element el_2 into el_1, these two mutations may be passed to the
-     * callback function together when the two operations were done.
-     * Generally we need to trace child nodes of newly added nodes, but in this
-     * case if we count el_2 as el_1's child node in the first mutation record,
-     * then we will count el_2 again in the second mutation record which was
-     * duplicated.
-     * To avoid of duplicate counting added nodes, we use a Set to store
-     * added nodes and its child nodes during iterate mutation records. Then
-     * collect added nodes from the Set which have no duplicate copy. But
-     * this also causes newly added nodes will not be serialized with id ASAP,
-     * which means all the id related calculation should be lazy too.
-     */
-    private addedNodeSet = new Set<Node>();
-    private movedNodeSet = new Set<Node>();
-    private droppedNodeSet = new Set<Node>();
+    private addedNodeSet = new Set<Node>();     // Set of added node
+    private movedNodeSet = new Set<Node>();     // Set of moved node
+    private droppedNodeSet = new Set<Node>();   // Set of dropped node
 
-    private emissionCallback: (p: eventWithTime) => void;
+    private emissionCallback: (p: eventWithTime) => void;   //  Function to save mutations that occur
 
     public init(cb: (p: eventWithTime) => void) { this.emissionCallback = cb; }
 
@@ -332,7 +319,7 @@ export default class MutationBuffer {
                 if (isBlocked(m.target, 'norecord') || value === m.oldValue) {
                     return;
                 }
-                let item: attributeCursor | undefined = this.attributes.find(
+                let item: attributeNewValue | undefined = this.attributes.find(
                     (a) => a.node === m.target,
                 );
                 if (!item) {

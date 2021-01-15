@@ -1,5 +1,5 @@
 import MutationBuffer from "../MutationBuffer/MutationBuffer";
-import { eventWithTime } from "../Recorder/types";
+import { eventWithTime, Watcher } from "../Recorder/types";
 
 class MutationWatcher {
     public mutationBuffer: MutationBuffer
@@ -15,7 +15,10 @@ class MutationWatcher {
      * watch
      */
     public watch() {
+        //  Use the capture method as the emission callback to save mutations that occur
         this.mutationBuffer.init(this.capture());
+
+        //  Use the processMutation method as the mutation callback function
         this.mutationObserver = new MutationObserver(
             this.mutationBuffer.processMutations.bind(this.mutationBuffer)
         );
@@ -32,7 +35,7 @@ class MutationWatcher {
     /**
      * capture
      */
-    public capture() : (p: eventWithTime) => void {
+    private capture() : (p: eventWithTime) => void {
         return this.callBack
     }
 }

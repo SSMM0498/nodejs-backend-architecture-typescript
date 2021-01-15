@@ -1,4 +1,9 @@
 import { NodeCaptured, DocumentNodesMap, NodeFormated } from '../NodeCaptor/types'
+export abstract class Watcher {
+    public callback: (p: eventWithTime) => void
+    abstract watch() : void
+    abstract capture(event?: Event) : void
+}
 
 export enum EventType {
     Meta,
@@ -127,7 +132,7 @@ export type mutationRecord = {
     attributeName: string | null
 }
 
-export type textCursor = {
+export type textNodeNewValue = {
     node: Node
     value: string | null
 }
@@ -137,7 +142,7 @@ export type textMutation = {
     value: string | null
 }
 
-export type attributeCursor = {
+export type attributeNewValue = {
     node: Node
     attributes: {
         [key: string]: string | null
