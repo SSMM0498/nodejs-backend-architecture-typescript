@@ -57,6 +57,7 @@ class Recorder {
     /**
      * Stop recording
      */
+    // TODO: implement stop function
     public stop() {
         console.log('stop')
         console.log(this.eventsTimeLine);
@@ -64,6 +65,7 @@ class Recorder {
 
     /**
      * Take full capture of the document
+     * @param isFirst for checking if this a the first full capture
      */
     public takeFullCapture(isFirst: boolean) {
         // Capture meta information
@@ -87,7 +89,7 @@ class Recorder {
         const [node, DocumentNodeMap] = this.nodeCaptor.capture();
         if (!node) return console.warn('Failed to capture the document\'s node');
 
-        //  Capture a document's node
+        //  Capture this full capture as an event
         const evt: eventWithTime = {
             type: EventType.FullCapture,
             data: {
@@ -111,6 +113,7 @@ class Recorder {
             },
             timestamp: Date.now(),
         }
+
         // Update mirror map
         mirror.map = DocumentNodeMap
 
@@ -136,14 +139,16 @@ class Recorder {
                 evt.data.source == IncrementalSource.Mutation
             )
         ) {
-            // we've got a user initiated event so first we need to apply
+            // this is an user initiated event so first we need to apply
             // all DOM changes that have been buffering during paused state
             this.mutationBuffer.emit();
             this.mutationBuffer.unfreeze();
         }
-        //  Record the event
+
+        //  Saved the event in the time line array
         this.eventsTimeLine.push(evt);
 
+        //  Check if it is time to do a new full node capture
         if (evt.type === EventType.FullCapture) {
             this.lastFullCaptureEvent = evt;
         } else if (evt.type === EventType.IncrementalCapture) {
