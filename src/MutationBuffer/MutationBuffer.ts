@@ -14,7 +14,7 @@ import {
     eventWithTime,
 } from '../Recorder/types';
 
-import { mirror, isBlocked, isAncestorRemoved } from '../Recorder/utils';
+import { _NFHandler, isBlocked, isAncestorRemoved } from '../Recorder/utils';
 import { transformAttribute } from '../NodeCaptor/utils';
 
 type DoubleLinkedListNode = {
@@ -165,7 +165,7 @@ export default class MutationBuffer {
         const addedNodeList = new DoubleLinkedList();
         const getNextId = (n: Node): number | null => {
             let nextId =
-                n.nextSibling && mirror.getId((n.nextSibling as unknown) as NodeFormated);
+                n.nextSibling && _NFHandler.getId((n.nextSibling as unknown) as NodeFormated);
             if (nextId === -1 && isBlocked(n.nextSibling, 'norecord')) {
                 nextId = null;
             }
@@ -176,7 +176,7 @@ export default class MutationBuffer {
             if (!n.parentNode) {
                 return;
             }
-            const parentId = mirror.getId((n.parentNode as Node) as NodeFormated);
+            const parentId = _NFHandler.getId((n.parentNode as Node) as NodeFormated);
             const nextId = getNextId(n);
             if (parentId === -1 || nextId === -1) {
                 return addedNodeList.addNode(n);
@@ -189,7 +189,7 @@ export default class MutationBuffer {
         };
 
         while (this.removedNodeMap.length) {
-            mirror.removeNodeFromMap(this.removedNodeMap.shift() as NodeFormated);
+            _NFHandler.removeNodeFromMap(this.removedNodeMap.shift() as NodeFormated);
         }
 
         for (const n of this.movedNodeSet) {
@@ -218,7 +218,7 @@ export default class MutationBuffer {
         while (addedNodeList.length) {
             let node: DoubleLinkedListNode | null = null;
             if (candidate) {
-                const parentId = mirror.getId(
+                const parentId = _NFHandler.getId(
                     (candidate.value.parentNode as Node) as NodeFormated,
                 );
                 const nextId = getNextId(candidate.value);
@@ -229,7 +229,7 @@ export default class MutationBuffer {
             if (!node) {
                 for (let index = addedNodeList.length - 1; index >= 0; index--) {
                     const _node = addedNodeList.get(index)!;
-                    const parentId = mirror.getId(
+                    const parentId = _NFHandler.getId(
                         (_node.value.parentNode as Node) as NodeFormated,
                     );
                     const nextId = getNextId(_node.value);
@@ -255,18 +255,18 @@ export default class MutationBuffer {
         const payload = {
             texts: this.texts
                 .map((text) => ({
-                    id: mirror.getId(text.node as NodeFormated),
+                    id: _NFHandler.getId(text.node as NodeFormated),
                     value: text.value,
                 }))
                 // text mutation's id was not in the mirror map means the target node has been removed
-                .filter((text) => mirror.has(text.id)),
+                .filter((text) => _NFHandler.has(text.id)),
             attributes: this.attributes
                 .map((attribute) => ({
-                    id: mirror.getId(attribute.node as NodeFormated),
+                    id: _NFHandler.getId(attribute.node as NodeFormated),
                     attributes: attribute.attributes,
                 }))
                 // attribute mutation's id was not in the mirror map means the target node has been removed
-                .filter((attribute) => mirror.has(attribute.id)),
+                .filter((attribute) => _NFHandler.has(attribute.id)),
             removes: this.removes,
             adds: adds,
         };
@@ -340,8 +340,8 @@ export default class MutationBuffer {
             case 'childList': {
                 m.addedNodes.forEach((n) => this.handleAddedNode(n, m.target));
                 m.removedNodes.forEach((n) => {
-                    const nodeId = mirror.getId(n as NodeFormated);
-                    const parentId = mirror.getId(m.target as NodeFormated);
+                    const nodeId = _NFHandler.getId(n as NodeFormated);
+                    const parentId = _NFHandler.getId(m.target as NodeFormated);
                     if (
                         isBlocked(n, 'norecord') ||
                         isBlocked(m.target, 'norecord')
@@ -425,7 +425,7 @@ function isParentRemoved(removes: removedNodeMutation[], n: Node): boolean {
     if (!parentNode) {
         return false;
     }
-    const parentId = mirror.getId((parentNode as Node) as NodeFormated);
+    const parentId = _NFHandler.getId((parentNode as Node) as NodeFormated);
     if (removes.some((r) => r.id === parentId)) {
         return true;
     }

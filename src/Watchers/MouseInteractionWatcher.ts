@@ -1,6 +1,6 @@
 import { NodeFormated } from '../NodeCaptor/types';
 import { eventWithTime, MouseInteractions, EventType, IncrementalSource } from '../Recorder/types';
-import { mirror, isTouchEvent, isBlocked } from '../Recorder/utils';
+import { _NFHandler, isTouchEvent, isBlocked } from '../Recorder/utils';
 
 class MouseInteractionWatcher {
     private callBack: (p: eventWithTime) => void
@@ -30,7 +30,7 @@ class MouseInteractionWatcher {
      */
     private capture(eventKey: keyof typeof MouseInteractions) : ((event: MouseEvent | TouchEvent) => void) {
         return (event: MouseEvent | TouchEvent) => {
-            const id = mirror.getId(event.target as NodeFormated)
+            const id = _NFHandler.getId(event.target as NodeFormated)
             const { clientX, clientY } = isTouchEvent(event)
                 ? event.changedTouches[0]
                 : event

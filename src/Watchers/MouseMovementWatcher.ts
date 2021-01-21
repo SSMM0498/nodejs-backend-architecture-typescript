@@ -1,6 +1,6 @@
 import { NodeFormated } from '../NodeCaptor/types';
 import { EventType, IncrementalSource, eventWithTime, mousePosition } from '../Recorder/types';
-import { mirror, isTouchEvent, throttle } from '../Recorder/utils';
+import { _NFHandler, isTouchEvent, throttle } from '../Recorder/utils';
 
 class MouseMovementWatcher {
     private callBack: (p: eventWithTime) => void
@@ -55,7 +55,7 @@ class MouseMovementWatcher {
                 positions.push({
                     x: clientX,
                     y: clientY,
-                    id: mirror.getId(target as NodeFormated),
+                    id: _NFHandler.getId(target as NodeFormated),
                     timeOffset: Date.now() - timeBaseline,
                 })
                 wrappedCb(isTouchEvent(evt))

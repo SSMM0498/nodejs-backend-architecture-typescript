@@ -1,6 +1,6 @@
 import { NodeFormated } from '../NodeCaptor/types';
 import { EventType, IncrementalSource, eventWithTime } from '../Recorder/types';
-import { mirror, throttle } from '../Recorder/utils';
+import { _NFHandler, throttle } from '../Recorder/utils';
 
 class ScrollWatcher {
     private callBack: (p: eventWithTime) => void
@@ -22,7 +22,7 @@ class ScrollWatcher {
      */
     private capture(evt: UIEvent): void {
         throttle<UIEvent>((evt) => {
-            const id = mirror.getId(evt.target as NodeFormated)
+            const id = _NFHandler.getId(evt.target as NodeFormated)
             if (evt.target === document) {
                 const scrollEl = (document.scrollingElement || document.documentElement)!
                 this.callBack({

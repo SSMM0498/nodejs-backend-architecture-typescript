@@ -1,4 +1,4 @@
-import { getWindowHeight, getWindowWidth, mirror } from "./utils";
+import { getWindowHeight, getWindowWidth, _NFHandler } from "./utils";
 import { EventType, eventWithTime, IncrementalSource } from "./types";
 import MutationBuffer from "../MutationBuffer/MutationBuffer";
 import NodeCaptor from "../NodeCaptor/NodeCaptor";
@@ -115,7 +115,7 @@ class Recorder {
         }
 
         // Update mirror map
-        mirror.map = DocumentNodeMap
+        _NFHandler.map = DocumentNodeMap
 
         //  Record a full node capture as an event
         this.addNewEvent(evt)

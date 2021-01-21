@@ -1,35 +1,28 @@
 import { NodeFormated } from '../NodeCaptor/types';
 import {
-    Mirror,
-    throttleOptions,
-    listenerHandler,
+    NodeFormatedHandler,
+    throttleOptions
 } from './types'
 
-export const mirror: Mirror = {
+export const _NFHandler: NodeFormatedHandler = {
     map: {},
     getId(n) {
         // if n is not a serialized INode, use -1 as its id.
-        if (!n._fnode) {
-            return -1
-        }
+        if (!n._fnode) { return -1 }
         return n._fnode.nodeId
     },
-    getNode(id) {
-        return mirror.map[id] || null
-    },
+    getNode(id) { return _NFHandler.map[id] || null },
     // TODO: use a weakmap to get rid of manually memory management
     removeNodeFromMap(n) {
         const id = n._fnode && n._fnode.nodeId
-        delete mirror.map[id]
+        delete _NFHandler.map[id]
         if (n.childNodes) {
             n.childNodes.forEach((child) =>
-                mirror.removeNodeFromMap((child as Node) as NodeFormated),
+                _NFHandler.removeNodeFromMap((child as Node) as NodeFormated),
             )
         }
     },
-    has(id) {
-        return mirror.map.hasOwnProperty(id)
-    },
+    has(id) { return _NFHandler.map.hasOwnProperty(id) },
 }
 
 /**
@@ -105,8 +98,8 @@ export function isBlocked(node: Node | null, blockClass: blockClass): boolean {
 }
 
 export function isAncestorRemoved(target: NodeFormated): boolean {
-    const id = mirror.getId(target)
-    if (!mirror.has(id)) {
+    const id = _NFHandler.getId(target)
+    if (!_NFHandler.has(id)) {
         return true
     }
     if (

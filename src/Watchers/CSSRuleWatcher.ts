@@ -1,6 +1,6 @@
 import { NodeFormated } from '../NodeCaptor/types';
 import { eventWithTime, EventType, IncrementalSource, inputValue, styleSheetRuleParam } from '../Recorder/types';
-import { mirror } from '../Recorder/utils';
+import { _NFHandler } from '../Recorder/utils';
 
 
 class CSSRuleWatcher {
@@ -20,7 +20,7 @@ class CSSRuleWatcher {
             rule: string,
             index?: number,
         ) {
-            const id = mirror.getId(this.ownerNode as NodeFormated)
+            const id = _NFHandler.getId(this.ownerNode as NodeFormated)
             if (id !== -1) {
                 self.capture({
                     type: 'insert',
@@ -33,7 +33,7 @@ class CSSRuleWatcher {
 
         const deleteRule = CSSStyleSheet.prototype.deleteRule
         CSSStyleSheet.prototype.deleteRule = function (index: number) {
-            const id = mirror.getId(this.ownerNode as NodeFormated)
+            const id = _NFHandler.getId(this.ownerNode as NodeFormated)
             if (id !== -1) {
                 self.capture({
                     type: 'remove',

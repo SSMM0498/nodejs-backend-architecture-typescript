@@ -244,7 +244,7 @@ export type mediaInteractionParam = {
     id: number
 }
 
-export type Mirror = {
+export type NodeFormatedHandler = {
     map: DocumentNodesMap
     getId: (n: NodeFormated) => number
     getNode: (id: number) => NodeFormated | null
