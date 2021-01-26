@@ -12,46 +12,60 @@ import MutationWatcher from "../Watchers/MutationWatcher";
 import TextSelectionWatcher from "../Watchers/TextSelectionWatcher";
 
 class Recorder {
-    public eventsTimeLine: Array<eventWithTime> = []    //  Array for storing all capture events
-    public nodeCaptor: NodeCaptor                       //  NodeCaptor Instance for capture node
-    public mutationBuffer: MutationBuffer;              //  MutationBuffer for handle mutation events
+    private eventsTimeLine: Array<eventWithTime> = []    //  Array for storing all capture events
+    private nodeCaptor: NodeCaptor                       //  NodeCaptor Instance for capture node
+    private mutationBuffer: MutationBuffer;              //  MutationBuffer for handle mutation events
     private lastFullCaptureEvent: eventWithTime
     private readonly fullCaptureInterval: number = 2000 //  Constant representing the delay between 2 full capture
 
+    //  Watchers
+    private scrollHandler: ScrollWatcher;
+    private mouseMoveHandler: MouseMovementWatcher;
+    private mouseInteractionHandler: MouseInteractionWatcher;
+    private inputHandler: InputWatcher;
+    private textSelectionHandler: TextSelectionWatcher;
+    private cssRulesHandler: CSSRuleWatcher;
+    private mutationHandler: MutationWatcher;
+    
+
     constructor(document: Document) {
+        const addNewEventCb = () => (p: eventWithTime) => this.addNewEvent(p)
+
+        //  Initialize the node captor
         this.nodeCaptor = new NodeCaptor(document)
+
+        //  Initialize the mutation buffer
+        this.mutationBuffer = new MutationBuffer();
+
+        //  Initialize all watcher
+        this.scrollHandler = new ScrollWatcher(addNewEventCb())
+        this.mouseMoveHandler = new MouseMovementWatcher(addNewEventCb())
+        this.mouseInteractionHandler = new MouseInteractionWatcher(addNewEventCb())
+        this.inputHandler = new InputWatcher(addNewEventCb())
+        this.textSelectionHandler = new TextSelectionWatcher(addNewEventCb())
+        this.cssRulesHandler = new CSSRuleWatcher(addNewEventCb())
+        this.mutationHandler = new MutationWatcher(addNewEventCb(), this.mutationBuffer);
+
+        //  TODO: Initialize a microphone listener
     }
 
     /**
      * Start recording
      */
     public start() {
-        console.log('start');
-        const addNewEventCb = () => (p: eventWithTime) => this.addNewEvent(p)
-
-        //  Initialize the mutation buffer
-        this.mutationBuffer = new MutationBuffer();
+        console.log('start')
 
         //  Take the first full capture
         this.takeFullCapture(true)
-
-        // Initialize all watcher
-        const scrollHandler = new ScrollWatcher(addNewEventCb())
-        const mouseMoveHandler = new MouseMovementWatcher(addNewEventCb())
-        const mouseInteractionHandler = new MouseInteractionWatcher(addNewEventCb())
-        const inputHandler = new InputWatcher(addNewEventCb())
-        const textSelectionHandler = new TextSelectionWatcher(addNewEventCb())
-        const cssRulesHandler = new CSSRuleWatcher(addNewEventCb())
-        const mutationHandler = new MutationWatcher(addNewEventCb(), this.mutationBuffer);
         
         // Start Watching
-        scrollHandler.watch()
-        mouseMoveHandler.watch()
-        mouseInteractionHandler.watch()
-        inputHandler.watch()
-        textSelectionHandler.watch()
-        cssRulesHandler.watch()
-        mutationHandler.watch()
+        this.scrollHandler.watch()
+        this.mouseMoveHandler.watch()
+        this.mouseInteractionHandler.watch()
+        this.inputHandler.watch()
+        this.textSelectionHandler.watch()
+        this.cssRulesHandler.watch()
+        this.mutationHandler.watch()
     }
 
     /**
@@ -67,7 +81,7 @@ class Recorder {
      * Take full capture of the document
      * @param isFirst for checking if this a the first full capture
      */
-    public takeFullCapture(isFirst: boolean) {
+    public takeFullCapture(isFirst: boolean = false) {
         // Capture meta information
         const meta: eventWithTime = {
             type: EventType.Meta,
