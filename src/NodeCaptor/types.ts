@@ -18,7 +18,7 @@ export type attributes = {
  */
 export type ElementNode = {
     type: NodeType.Element
-    ElementName: string
+    elementName: string
     attributes: attributes
     childNodes: NodeCaptured[]
 }
@@ -42,10 +42,10 @@ export type NodeCaptured = (
 )
 
 /**
- * Represents the a merge with the captured node and the node document
+ * Represents a merge with the captured node and the node document
  */
 export interface NodeFormated extends Node {
-    _fnode: NodeCaptured
+    _cnode: NodeCaptured
 }
 
 /**

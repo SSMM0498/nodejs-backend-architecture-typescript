@@ -77,7 +77,7 @@ class NodeCaptor {
                 return {
                     originId,
                     type: NodeType.Element,
-                    ElementName,
+                    elementName: ElementName,
                     attributes,
                     childNodes: [],
                 }
@@ -125,14 +125,14 @@ class NodeCaptor {
         let nodeId = 1
 
         // Determine the node id
-        if ('_fnode' in currentNode) {
-            nodeId = currentNode._fnode.nodeId
+        if ('_cnode' in currentNode) {
+            nodeId = currentNode._cnode.nodeId
         } else {
             nodeId = this.currentId++
         }
 
         const capturedNode = Object.assign({ nodeId }, _capturedNode)
-            ; (currentNode as NodeFormated)._fnode = capturedNode
+            ; (currentNode as NodeFormated)._cnode = capturedNode
 
         map[nodeId] = currentNode as NodeFormated
 
@@ -149,7 +149,7 @@ class NodeCaptor {
         //  format and capture each element of the current node if it's an iframe
         if (
             capturedNode.type === NodeType.Element &&
-            capturedNode.ElementName === 'iframe'
+            capturedNode.elementName === 'iframe'
         ) {
             const iframeDoc = (currentNode as HTMLIFrameElement).contentDocument;
             if (iframeDoc) {

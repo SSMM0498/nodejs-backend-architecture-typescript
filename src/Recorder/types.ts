@@ -244,7 +244,7 @@ export type mediaInteractionParam = {
     id: number
 }
 
-export type NodeFormatedHandler = {
+export type NodeFormatedMapHandler = {
     map: DocumentNodesMap
     getId: (n: NodeFormated) => number
     getNode: (id: number) => NodeFormated | null

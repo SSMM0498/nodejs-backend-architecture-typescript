@@ -1,28 +1,28 @@
 import { NodeFormated } from '../NodeCaptor/types';
 import {
-    NodeFormatedHandler,
+    NodeFormatedMapHandler,
     throttleOptions
 } from './types'
 
-export const _NFHandler: NodeFormatedHandler = {
+export const _NFMHandler: NodeFormatedMapHandler = {
     map: {},
     getId(n) {
         // if n is not a serialized INode, use -1 as its id.
-        if (!n._fnode) { return -1 }
-        return n._fnode.nodeId
+        if (!n._cnode) { return -1 }
+        return n._cnode.nodeId
     },
-    getNode(id) { return _NFHandler.map[id] || null },
+    getNode(id) { return _NFMHandler.map[id] || null },
     // TODO: use a weakmap to get rid of manually memory management
     removeNodeFromMap(n) {
-        const id = n._fnode && n._fnode.nodeId
-        delete _NFHandler.map[id]
+        const id = n._cnode && n._cnode.nodeId
+        delete _NFMHandler.map[id]
         if (n.childNodes) {
             n.childNodes.forEach((child) =>
-                _NFHandler.removeNodeFromMap((child as Node) as NodeFormated),
+                _NFMHandler.removeNodeFromMap((child as Node) as NodeFormated),
             )
         }
     },
-    has(id) { return _NFHandler.map.hasOwnProperty(id) },
+    has(id) { return _NFMHandler.map.hasOwnProperty(id) },
 }
 
 /**
@@ -98,8 +98,8 @@ export function isBlocked(node: Node | null, blockClass: blockClass): boolean {
 }
 
 export function isAncestorRemoved(target: NodeFormated): boolean {
-    const id = _NFHandler.getId(target)
-    if (!_NFHandler.has(id)) {
+    const id = _NFMHandler.getId(target)
+    if (!_NFMHandler.has(id)) {
         return true
     }
     if (
