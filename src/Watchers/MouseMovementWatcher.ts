@@ -1,9 +1,10 @@
 import { NodeFormated } from '../NodeCaptor/types';
 import { EventType, IncrementalSource, eventWithTime, mousePosition } from '../Recorder/types';
-import { _NFHandler, isTouchEvent, throttle } from '../Recorder/utils';
+import { _NFMHandler, isTouchEvent, throttle } from '../Recorder/utils';
 
 class MouseMovementWatcher {
     private callBack: (p: eventWithTime) => void
+    private handler = (e: MouseEvent | TouchEvent) => this.capture(e);
     
     constructor(cb: (p: eventWithTime) => void) {
         this.callBack = cb
@@ -14,8 +15,17 @@ class MouseMovementWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('mousemove', (e) => this.capture(e), options)
-        document.addEventListener('touchmove', (e) => this.capture(e), options)
+        document.addEventListener('mousemove', this.handler, options)
+        document.addEventListener('touchmove', this.handler, options)
+    }
+    
+    /**
+     * stop
+     */
+    public stop() {
+        const options = { capture: true, passive: true }
+        document.removeEventListener('mousemove', this.handler, options)
+        document.removeEventListener('touchmove', this.handler, options)
     }
 
     /**
@@ -55,7 +65,7 @@ class MouseMovementWatcher {
                 positions.push({
                     x: clientX,
                     y: clientY,
-                    id: _NFHandler.getId(target as NodeFormated),
+                    id: _NFMHandler.getId(target as NodeFormated),
                     timeOffset: Date.now() - timeBaseline,
                 })
                 wrappedCb(isTouchEvent(evt))

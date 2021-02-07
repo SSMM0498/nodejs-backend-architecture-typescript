@@ -2,7 +2,7 @@ import { eventWithTime, EventType, IncrementalSource, inputValue } from '../Reco
 
 class TextSelectionWatcher {
     private callBack: (p: eventWithTime) => void
-    private lastInputValueMap: WeakMap<EventTarget, inputValue> = new WeakMap()
+    private handler = (e: Event) => this.capture(e)
 
     constructor(cb: (p: eventWithTime) => void) {
         this.callBack = cb
@@ -13,11 +13,21 @@ class TextSelectionWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('selectionchange', (e) => this.capture(e), options)
+        document.addEventListener('selectionchange', this.handler, options)
+    }
+
+    /**
+     * stop
+     */
+    public stop() {
+        const options = { capture: true, passive: true }
+        document.removeEventListener('selectionchange', this.handler, options)
     }
 
     /**
      * capture
+     * TODO : Improve
+     * ! : Create the Corresponding Action Trigger
      */
     private capture(event: Event) {
         const sel = document.getSelection()

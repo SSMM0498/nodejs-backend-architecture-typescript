@@ -1,10 +1,12 @@
 import { NodeFormated } from '../NodeCaptor/types';
 import { eventWithTime, EventType, IncrementalSource, inputValue } from '../Recorder/types';
-import { _NFHandler } from '../Recorder/utils';
+import { _NFMHandler } from '../Recorder/utils';
 
 const INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT']
+
 class InputWatcher {
     private callBack: (p: eventWithTime) => void
+    private handler = (e: Event) => this.capture(e)
     private lastInputValueMap: WeakMap<EventTarget, inputValue> = new WeakMap()
 
     constructor(cb: (p: eventWithTime) => void) {
@@ -16,8 +18,17 @@ class InputWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('input', (e) => this.capture(e), options)
-        document.addEventListener('change', (e) => this.capture(e), options)
+        document.addEventListener('input', this.handler, options)
+        document.addEventListener('change', this.handler, options)
+    }
+
+    /**
+     * stop
+     */
+    public stop() {
+        const options = { capture: true, passive: true }
+        document.removeEventListener('input', this.handler, options)
+        document.removeEventListener('change', this.handler, options)
     }
 
     /**
@@ -68,7 +79,7 @@ class InputWatcher {
             lastInputValue.isChecked !== v.isChecked
         ) {
             this.lastInputValueMap.set(target, v)
-            const id = _NFHandler.getId(target as NodeFormated)
+            const id = _NFMHandler.getId(target as NodeFormated)
             this.callBack({
                 type: EventType.IncrementalCapture,
                 data: {

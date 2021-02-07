@@ -9,19 +9,21 @@ class MutationWatcher {
     constructor(cb: (p: eventWithTime) => void, mb: MutationBuffer) {
         this.callBack = cb
         this.mutationBuffer = mb
+
+        //  Use the capture method as the emission callback to save mutations that occur
+        this.mutationBuffer.init(this.capture());
+
+        //  Use the processMutations method as the mutation callback function
+        this.mutationObserver = new MutationObserver(
+            this.mutationBuffer.processMutations.bind(this.mutationBuffer)
+        );
     }
 
     /**
      * watch
      */
     public watch() {
-        //  Use the capture method as the emission callback to save mutations that occur
-        this.mutationBuffer.init(this.capture());
-
-        //  Use the processMutation method as the mutation callback function
-        this.mutationObserver = new MutationObserver(
-            this.mutationBuffer.processMutations.bind(this.mutationBuffer)
-        );
+        //  Start observing the Document DOM
         this.mutationObserver.observe(document, {
             attributes: true,
             attributeOldValue: true,
@@ -30,6 +32,13 @@ class MutationWatcher {
             childList: true,
             subtree: true,
         });
+    }
+
+    /**
+     * stop
+     */
+    public stop() {
+        this.mutationObserver.disconnect()
     }
 
     /**
