@@ -1,8 +1,7 @@
-import { getWindowHeight, getWindowWidth, _NFHandler } from "./utils";
+import { getWindowHeight, getWindowWidth, _NFMHandler } from "./utils";
 import { EventType, eventWithTime, IncrementalSource } from "./types";
 import MutationBuffer from "../MutationBuffer/MutationBuffer";
 import NodeCaptor from "../NodeCaptor/NodeCaptor";
-
 import ScrollWatcher from "../Watchers/ScrollWatcher";
 import MouseMovementWatcher from "../Watchers/MouseMovementWatcher";
 import MouseInteractionWatcher from "../Watchers/MouseInteractionWatcher";
@@ -10,11 +9,12 @@ import InputWatcher from "../Watchers/InputWatcher";
 import CSSRuleWatcher from "../Watchers/CSSRuleWatcher";
 import MutationWatcher from "../Watchers/MutationWatcher";
 import TextSelectionWatcher from "../Watchers/TextSelectionWatcher";
+import MicrophoneListener from "../Listener/MicrophoneListener";
 
 class Recorder {
     private eventsTimeLine: Array<eventWithTime> = []    //  Array for storing all capture events
     private nodeCaptor: NodeCaptor                       //  NodeCaptor Instance for capture node
-    private mutationBuffer: MutationBuffer;              //  MutationBuffer for handle mutation events
+    private mutationBuffer: MutationBuffer               //  MutationBuffer for handle mutation events
     private lastFullCaptureEvent: eventWithTime
     private readonly fullCaptureInterval: number = 2000 //  Constant representing the delay between 2 full capture
 
@@ -26,6 +26,7 @@ class Recorder {
     private textSelectionHandler: TextSelectionWatcher;
     private cssRulesHandler: CSSRuleWatcher;
     private mutationHandler: MutationWatcher;
+    private microListener: MicrophoneListener;
     
 
     constructor(document: Document) {
@@ -47,6 +48,7 @@ class Recorder {
         this.mutationHandler = new MutationWatcher(addNewEventCb(), this.mutationBuffer);
 
         //  TODO: Initialize a microphone listener
+        this.microListener = new MicrophoneListener();
     }
 
     /**
@@ -66,6 +68,8 @@ class Recorder {
         this.textSelectionHandler.watch()
         this.cssRulesHandler.watch()
         this.mutationHandler.watch()
+
+        //  TODO: start listenning
     }
 
     /**
@@ -75,6 +79,20 @@ class Recorder {
     public stop() {
         console.log('stop')
         console.log(this.eventsTimeLine);
+
+        // Take the last full capture
+        this.takeFullCapture()
+
+        // Stop Watching
+        this.scrollHandler.stop()
+        this.mouseMoveHandler.stop()
+        this.mouseInteractionHandler.stop()
+        this.inputHandler.stop()
+        this.textSelectionHandler.stop()
+        this.cssRulesHandler.stop()
+        this.mutationHandler.stop()
+
+        //  TODO: Save to a file
     }
 
     /**
@@ -129,7 +147,7 @@ class Recorder {
         }
 
         // Update mirror map
-        _NFHandler.map = DocumentNodeMap
+        _NFMHandler.map = DocumentNodeMap
 
         //  Record a full node capture as an event
         this.addNewEvent(evt)
