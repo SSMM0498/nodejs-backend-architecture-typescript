@@ -14,23 +14,24 @@ import {
     eventWithTime,
 } from '../Recorder/types';
 
-import { _NFHandler, isBlocked, isAncestorRemoved } from '../Recorder/utils';
+import { _NFMHandler, isBlocked, isAncestorRemoved } from '../Recorder/utils';
 import { transformAttribute } from '../NodeCaptor/utils';
 
 type DoubleLinkedListNode = {
     previous: DoubleLinkedListNode | null;
     next: DoubleLinkedListNode | null;
     value: NodeInLinkedList;
-};
+} | null;
 
 type NodeInLinkedList = Node & {
     _ln: DoubleLinkedListNode;
 };
 
 function isNodeInLinkedList(n: Node | NodeInLinkedList): n is NodeInLinkedList {
-    return '_ln' in n;
+    return ('_ln' in n) && n._ln == null;
 }
 
+//  Check on the net for explication
 class DoubleLinkedList {
     public length = 0;
     public head: DoubleLinkedListNode | null = null;
@@ -55,22 +56,26 @@ class DoubleLinkedList {
             next: null,
         };
         (n as NodeInLinkedList)._ln = node;
+
+        //  Rearrange the previous sibling of the current node
         if (n.previousSibling && isNodeInLinkedList(n.previousSibling)) {
-            const current = n.previousSibling._ln.next;
+            const current = n.previousSibling._ln!.next;
             node.next = current;
-            node.previous = n.previousSibling._ln;
-            n.previousSibling._ln.next = node;
+            node.previous = n.previousSibling._ln!;
+            n.previousSibling._ln!.next = node;
             if (current) {
                 current.previous = node;
             }
+        //  Rearrange the next sibling of the current node
         } else if (n.nextSibling && isNodeInLinkedList(n.nextSibling)) {
-            const current = n.nextSibling._ln.previous;
+            const current = n.nextSibling._ln!.previous;
             node.previous = current;
             node.next = n.nextSibling._ln;
-            n.nextSibling._ln.previous = node;
+            n.nextSibling._ln!.previous = node;
             if (current) {
                 current.next = node;
             }
+        //  Redefine the head of the list
         } else {
             if (this.head) {
                 this.head.previous = node;
@@ -82,7 +87,7 @@ class DoubleLinkedList {
     }
 
     public removeNode(n: NodeInLinkedList) {
-        const current = n._ln;
+        const current = n._ln!;
         if (!this.head) {
             return;
         }
@@ -99,8 +104,8 @@ class DoubleLinkedList {
             }
         }
 
-        if (n._ln) {
-            delete n._ln;
+        if (n.hasOwnProperty('_ln')) {
+            n._ln = null;
         }
 
         this.length--;
@@ -110,11 +115,11 @@ class DoubleLinkedList {
 const moveKey = (id: number, parentId: number) => `${id}@${parentId}`;
 
 function isNodeFormated(n: Node | NodeFormated): n is NodeFormated {
-    return '_fnode' in n;
+    return '_cnode' in n;
 }
 
 /**
- * controls behaviour of MutationWatcher
+ * handle how mutation are emitted
  */
 export default class MutationBuffer {
     private frozen: boolean = false;
@@ -130,7 +135,7 @@ export default class MutationBuffer {
     private movedNodeSet = new Set<Node>();     // Set of moved node
     private droppedNodeSet = new Set<Node>();   // Set of dropped node
 
-    private emissionCallback: (p: eventWithTime) => void;   //  Function to save mutations that occur
+    private emissionCallback: (p: eventWithTime) => void;   // Function to save mutations that occur
 
     public init(cb: (p: eventWithTime) => void) { this.emissionCallback = cb; }
 
@@ -147,15 +152,15 @@ export default class MutationBuffer {
     }
 
     public processMutations = (mutations: mutationRecord[]) => {
-        mutations.forEach(this.processMutation);
+        mutations.forEach(this.bufferizeMutation);
         if (!this.frozen) {
             this.emit();
         }
     };
 
     public emit = () => {
-        // delay any modification of the mirror until this function
-        // so that the mirror for takeFullSnapshot doesn't get mutated while it's event is being processed
+        // delay any modification of the _NFHandler until this function
+        // so that the _NFHandler for takeFullSnapshot doesn't get mutated while it's event is being processed
         const adds: addedNodeMutation[] = [];
 
         /**
@@ -163,12 +168,13 @@ export default class MutationBuffer {
          * parent, so we init a queue to store these nodes.
          */
         const addedNodeList = new DoubleLinkedList();
+
         const getNextId = (n: Node): number | null => {
             let nextId =
-                n.nextSibling && _NFHandler.getId((n.nextSibling as unknown) as NodeFormated);
-            if (nextId === -1 && isBlocked(n.nextSibling, 'norecord')) {
+                n.nextSibling && _NFMHandler.getId((n.nextSibling as unknown) as NodeFormated);
+            if (nextId === -1 && isBlocked(n.nextSibling, 'norecord'))
                 nextId = null;
-            }
+
             return nextId;
         };
 
@@ -176,7 +182,7 @@ export default class MutationBuffer {
             if (!n.parentNode) {
                 return;
             }
-            const parentId = _NFHandler.getId((n.parentNode as Node) as NodeFormated);
+            const parentId = _NFMHandler.getId((n.parentNode as Node) as NodeFormated);
             const nextId = getNextId(n);
             if (parentId === -1 || nextId === -1) {
                 return addedNodeList.addNode(n);
@@ -184,18 +190,20 @@ export default class MutationBuffer {
             adds.push({
                 parentId,
                 nextId,
-                node: new NodeCaptor(document).capture()[0]!,
+                // TODO : I think I must use captureNode
+                node: new NodeCaptor(document).formatNode(n, _NFMHandler.map)!,  //  ! : Improve the process and avoid to instancitate a new Node Captor each time we add a new node
             });
         };
 
         while (this.removedNodeMap.length) {
-            _NFHandler.removeNodeFromMap(this.removedNodeMap.shift() as NodeFormated);
+            _NFMHandler.removeNodeFromMap(this.removedNodeMap.shift() as NodeFormated);
         }
 
         for (const n of this.movedNodeSet) {
             if (
                 isParentRemoved(this.removes, n) &&
-                !this.movedNodeSet.has(n.parentNode!)) {
+                !this.movedNodeSet.has(n.parentNode!)
+            ) {
                 continue;
             }
             pushAdd(n);
@@ -215,10 +223,12 @@ export default class MutationBuffer {
         }
 
         let candidate: DoubleLinkedListNode | null = null;
+        //  ! : Explain -> how the purge of the adds array
         while (addedNodeList.length) {
             let node: DoubleLinkedListNode | null = null;
+
             if (candidate) {
-                const parentId = _NFHandler.getId(
+                const parentId = _NFMHandler.getId(
                     (candidate.value.parentNode as Node) as NodeFormated,
                 );
                 const nextId = getNextId(candidate.value);
@@ -229,7 +239,7 @@ export default class MutationBuffer {
             if (!node) {
                 for (let index = addedNodeList.length - 1; index >= 0; index--) {
                     const _node = addedNodeList.get(index)!;
-                    const parentId = _NFHandler.getId(
+                    const parentId = _NFMHandler.getId(
                         (_node.value.parentNode as Node) as NodeFormated,
                     );
                     const nextId = getNextId(_node.value);
@@ -255,18 +265,18 @@ export default class MutationBuffer {
         const payload = {
             texts: this.texts
                 .map((text) => ({
-                    id: _NFHandler.getId(text.node as NodeFormated),
+                    id: _NFMHandler.getId(text.node as NodeFormated),
                     value: text.value,
                 }))
-                // text mutation's id was not in the mirror map means the target node has been removed
-                .filter((text) => _NFHandler.has(text.id)),
+                // text mutation's id was not in the _NFHandler map means the target node has been removed
+                .filter((text) => _NFMHandler.has(text.id)),
             attributes: this.attributes
                 .map((attribute) => ({
-                    id: _NFHandler.getId(attribute.node as NodeFormated),
+                    id: _NFMHandler.getId(attribute.node as NodeFormated),
                     attributes: attribute.attributes,
                 }))
-                // attribute mutation's id was not in the mirror map means the target node has been removed
-                .filter((attribute) => _NFHandler.has(attribute.id)),
+                // attribute mutation's id was not in the _NFHandler map means the target node has been removed
+                .filter((attribute) => _NFMHandler.has(attribute.id)),
             removes: this.removes,
             adds: adds,
         };
@@ -302,7 +312,7 @@ export default class MutationBuffer {
         this.emissionCallback(evt);
     };
 
-    private processMutation = (m: mutationRecord) => {
+    private bufferizeMutation = (m: mutationRecord) => {
         switch (m.type) {
             case 'characterData': {
                 const value = m.target.textContent;
@@ -333,59 +343,62 @@ export default class MutationBuffer {
                 item.attributes[m.attributeName!] = transformAttribute(
                     document,
                     m.attributeName!,
-                    value!,
+                    value!,             //  attribute new value
                 );
                 break;
             }
             case 'childList': {
                 m.addedNodes.forEach((n) => this.handleAddedNode(n, m.target));
-                m.removedNodes.forEach((n) => {
-                    const nodeId = _NFHandler.getId(n as NodeFormated);
-                    const parentId = _NFHandler.getId(m.target as NodeFormated);
-                    if (
-                        isBlocked(n, 'norecord') ||
-                        isBlocked(m.target, 'norecord')
-                    ) {
-                        return;
-                    }
-                    // removed node has not been serialized yet, just remove it from the Set
-                    if (this.addedNodeSet.has(n)) {
-                        deepDelete(this.addedNodeSet, n);
-                        this.droppedNodeSet.add(n);
-                    } else if (this.addedNodeSet.has(m.target) && nodeId === -1) {
-                        /**
-                         * If target was newly added and removed child node was
-                         * not serialized, it means the child node has been removed
-                         * before callback fired, so we can ignore it because
-                         * newly added node will be serialized without child nodes.
-                         * TODO: verify this
-                         */
-                    } else if (isAncestorRemoved(m.target as NodeFormated)) {
-                        /**
-                         * If parent id was not in the mirror map any more, it
-                         * means the parent node has already been removed. So
-                         * the node is also removed which we do not need to track
-                         * and replay.
-                         */
-                    } else if (
-                        this.movedNodeSet.has(n) &&
-                        this.movedNodeMap[moveKey(nodeId, parentId)]
-                    ) {
-                        deepDelete(this.movedNodeSet, n);
-                    } else {
-                        this.removes.push({
-                            parentId,
-                            id: nodeId,
-                        });
-                    }
-                    this.removedNodeMap.push(n);
-                });
+                m.removedNodes.forEach((n) => this.handleRemovedNode(n, m.target));
                 break;
             }
             default:
                 break;
         }
     };
+
+    private handleRemovedNode = (n: Node | NodeFormated, target?: Node | NodeFormated) => {
+        const nodeId = _NFMHandler.getId(n as NodeFormated);
+        const parentId = _NFMHandler.getId(target as NodeFormated);
+
+        if (
+            isBlocked(n, 'norecord') ||
+            isBlocked(target as Node, 'norecord')
+        ) {
+            return;
+        }
+        // the removed node has not been serialized yet, just remove it from the Set
+        if (this.addedNodeSet.has(n)) {
+            deepDelete(this.addedNodeSet, n);
+            this.droppedNodeSet.add(n);
+        } else if (this.addedNodeSet.has(target as Node) && nodeId === -1) {
+            /**
+             * If target was newly added and removed child node was
+             * not serialized, it means the child node has been removed
+             * before callback fired, so we can ignore it because
+             * newly added node will be serialized without child nodes.
+             * TODO: verify this
+             */
+        } else if (isAncestorRemoved(target as NodeFormated)) {
+            /**
+             * If parent id was not in the _NFHandler map any more, it
+             * means the parent node has already been removed. So
+             * the node is also removed which we do not need to track
+             * and replay.
+             */
+        } else if (
+            this.movedNodeSet.has(n) &&
+            this.movedNodeMap[moveKey(nodeId, parentId)]
+        ) {
+            deepDelete(this.movedNodeSet, n);
+        } else {
+            this.removes.push({
+                parentId,
+                id: nodeId,
+            });
+        }
+        this.removedNodeMap.push(n);
+    }
 
     private handleAddedNode = (n: Node | NodeFormated, target?: Node | NodeFormated) => {
         if (isBlocked(n, 'norecord')) {
@@ -395,10 +408,10 @@ export default class MutationBuffer {
             this.movedNodeSet.add(n);
             let targetId: number | null = null;
             if (target && isNodeFormated(target)) {
-                targetId = target._fnode.nodeId;
+                targetId = target._cnode.nodeId;
             }
             if (targetId) {
-                this.movedNodeMap[moveKey(n._fnode.nodeId, targetId)] = true;
+                this.movedNodeMap[moveKey(n._cnode.nodeId, targetId)] = true;
             }
         } else {
             this.addedNodeSet.add(n);
@@ -425,7 +438,7 @@ function isParentRemoved(removes: removedNodeMutation[], n: Node): boolean {
     if (!parentNode) {
         return false;
     }
-    const parentId = _NFHandler.getId((parentNode as Node) as NodeFormated);
+    const parentId = _NFMHandler.getId((parentNode as Node) as NodeFormated);
     if (removes.some((r) => r.id === parentId)) {
         return true;
     }
