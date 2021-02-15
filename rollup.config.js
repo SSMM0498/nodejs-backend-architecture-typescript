@@ -1,7 +1,11 @@
+import json from '@rollup/plugin-json';
+import commonjs from "@rollup/plugin-commonjs";
 import typescript from 'rollup-plugin-typescript';
+import resolve from '@rollup/plugin-node-resolve'
 import {
     terser
 } from 'rollup-plugin-terser';
+
 import pkg from './package.json';
 
 function toMinPath(path) {
@@ -11,7 +15,13 @@ function toMinPath(path) {
 export default [
     {
         input: './src/index.ts',
-        plugins: [typescript()],
+        plugins: [
+            json(),
+            resolve(),
+            typescript(),
+            commonjs()
+        ],
+        context: 'window',
         output: [{
             name: 'ArkadRecorder',
             format: 'es',
@@ -20,7 +30,14 @@ export default [
     },
     {
         input: './src/index.ts',
-        plugins: [typescript(), terser()],
+        plugins: [
+            json(),
+            resolve(),
+            typescript(),
+            terser({output: {comments: false}}),
+            commonjs()
+        ],
+        context: 'window',
         output: [{
             name: 'ArkadRecorder',
             format: 'es',
