@@ -1,47 +1,62 @@
-import MicrophoneRecorder from 'mic-recorder'
-
 class MicrophoneListener {
-    private handler!: MicrophoneRecorder
+    private stopped = false;
+    private paused = false;
+    private reco: MediaRecorder;
+    private options: MediaRecorderOptions = { mimeType: 'audio/webm' };
+    private recordedChunks: BlobPart[] = [];
+    private audioBlob: Blob;
 
     constructor() {
-        this.handler = new MicrophoneRecorder({
-            bitRate: 128,
-            encoder: 'mp3',     // default is mp3, can be wav as well
-            sampleRate: 44100,  // default is 44100, it can also be set to 16000 and 8000.
-        })
+        navigator.mediaDevices
+            .getUserMedia({ audio: true, video: false })
+            .then(this.handleSuccess);
+    }
+
+    private handleSuccess(stream: MediaStream) {
+        this.reco = new MediaRecorder(stream, this.options);
+
+        this.reco.addEventListener('dataavailable', this.handleData)
+
+        this.reco.addEventListener('stop', this.stop)
+    }
+
+    private handleData(e: BlobEvent) {
+        if (e.data.size > 0) {
+            this.recordedChunks.push(e.data);
+        }
+
+        if (this.stopped === false) {
+            this.stop()
+        }
     }
 
     public listen() {
-        this.handler.start()
+        this.reco.start(1000)
     }
 
     public pause() {
-        //  TODO: implement
+        this.reco.pause();
+        this.paused = true
     }
 
-    public capture() {
-        this.handler.getAudio()
-
-            // * : Check this for saving file
-            // .then(([buffer, blob]) => {
-            //     // do what ever you want with buffer and blob
-            //     // Example: Create a mp3 file and play
-            //     const file = new File(buffer, 'me-at-thevoice.mp3', {
-            //         type: blob.type,
-            //         lastModified: Date.now()
-            //     });
-
-            //     const player = new Audio(URL.createObjectURL(file));
-            //     player.play();
-
-            // }).catch((e) => {
-            //     alert('We could not retrieve your message');
-            //     console.log(e);
-            // });
+    public resume() {
+        if (this.paused === true) { this.reco.resume(); this.paused = false; }
     }
 
     public stop() {
-        this.handler.stop()
+        this.audioBlob = new Blob(this.recordedChunks);
+        this.stopped = true;
+        this.capture()
+    }
+
+    private capture() {
+        return this.audioBlob
+
+        // * : Check this for saving file
+        //     const file = new File(buffer, 'me-at-thevoice.mp3', {
+        //         type: blob.type,
+        //         lastModified: Date.now()
+        //     });
     }
 }
 

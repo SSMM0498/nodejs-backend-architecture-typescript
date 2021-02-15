@@ -11,6 +11,8 @@ import MutationWatcher from "../Watchers/MutationWatcher";
 import TextSelectionWatcher from "../Watchers/TextSelectionWatcher";
 import MicrophoneListener from "../Listener/MicrophoneListener";
 
+//  ! : Handle Iframe Manager
+//  ! : Handle Live Mode
 class Recorder {
     private eventsTimeLine: Array<eventWithTime> = []    //  Array for storing all capture events
     private nodeCaptor: NodeCaptor                       //  NodeCaptor Instance for capture node
@@ -177,6 +179,7 @@ class Recorder {
             this.mutationBuffer.unfreeze();
         }
 
+        // ! : Handle live mode
         //  Saved the event in the time line array
         this.eventsTimeLine.push(evt);
 
