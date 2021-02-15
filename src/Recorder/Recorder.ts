@@ -66,7 +66,7 @@ class Recorder {
         // Start Watching
         this.scrollHandler.watch()
         this.mouseMoveHandler.watch()
-        // this.mouseInteractionHandler.watch()
+        this.mouseInteractionHandler.watch()
         this.inputHandler.watch()
         this.textSelectionHandler.watch()
         this.cssRulesHandler.watch()
@@ -88,7 +88,7 @@ class Recorder {
         // Stop Watching
         this.scrollHandler.stop()
         this.mouseMoveHandler.stop()
-        // this.mouseInteractionHandler.stop()
+        this.mouseInteractionHandler.stop()
         this.inputHandler.stop()
         this.textSelectionHandler.stop()
         this.cssRulesHandler.stop()

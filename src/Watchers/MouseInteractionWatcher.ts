@@ -2,12 +2,10 @@ import { NodeFormated } from '../NodeCaptor/types';
 import { eventWithTime, MouseInteractions, EventType, IncrementalSource } from '../Recorder/types';
 import { _NFMHandler, isTouchEvent, isBlocked } from '../Recorder/utils';
 
-type MouseInteractionHandler = (eventKey: keyof typeof MouseInteractions) => ((event: MouseEvent | TouchEvent) => void)
-
-// TODO: Verify if it works
+type MouseInteractionHandler = (event: MouseEvent | TouchEvent) => void
 class MouseInteractionWatcher {
     private callBack: (p: eventWithTime) => void
-    private handler: MouseInteractionHandler[]
+    private handler: MouseInteractionHandler[] = []
     
     constructor(cb: (p: eventWithTime) => void) {
         this.setEventListeners = this.setEventListeners.bind(this)
@@ -27,9 +25,9 @@ class MouseInteractionWatcher {
 
     private setEventListeners(eventKey: keyof typeof MouseInteractions) {
         const options = { capture: true, passive: true }
-        const index = this.handler.push((eventKey) => this.capture(eventKey))
+        const index = this.handler.push(this.capture(eventKey))
         const eventName = eventKey.toLowerCase()
-        document.addEventListener(eventName, this.handler[index - 1](eventKey), options)
+        document.addEventListener(eventName, this.handler[index - 1], options)
     }
 
     /**
@@ -42,9 +40,9 @@ class MouseInteractionWatcher {
             (key) => Number.isNaN(Number(key)),
         )
         .forEach((eventKey: keyof typeof MouseInteractions) => {
-            const index = this.handler.push((eventKey) => this.capture(eventKey))
+            const index = this.handler.push(this.capture(eventKey))
             const eventName = eventKey.toLowerCase()
-            document.removeEventListener(eventName, this.handler[index - 1](eventKey), options)
+            document.removeEventListener(eventName, this.handler[index - 1], options)
         })
     }
 
@@ -53,6 +51,7 @@ class MouseInteractionWatcher {
      */
     private capture(eventKey: keyof typeof MouseInteractions) : ((event: MouseEvent | TouchEvent) => void) {
         return (event: MouseEvent | TouchEvent) => {
+            console.log(event);
             const id = _NFMHandler.getId(event.target as NodeFormated)
             const { clientX, clientY } = isTouchEvent(event)
                 ? event.changedTouches[0]
