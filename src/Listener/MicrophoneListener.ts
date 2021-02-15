@@ -3,10 +3,12 @@ class MicrophoneListener {
     private paused = false;
     private reco: MediaRecorder;
     private options: MediaRecorderOptions = { mimeType: 'audio/webm' };
-    private recordedChunks: BlobPart[] = [];
-    private audioBlob: Blob;
+    private recordedAudioBlob: BlobPart[] = [];
 
     constructor() {
+        this.handleSuccess = this.handleSuccess.bind(this)
+        this.handleData = this.handleData.bind(this)
+        this.stop = this.stop.bind(this)
         navigator.mediaDevices
             .getUserMedia({ audio: true, video: false })
             .then(this.handleSuccess);
@@ -22,11 +24,7 @@ class MicrophoneListener {
 
     private handleData(e: BlobEvent) {
         if (e.data.size > 0) {
-            this.recordedChunks.push(e.data);
-        }
-
-        if (this.stopped === false) {
-            this.stop()
+            this.recordedAudioBlob.push(e.data);
         }
     }
 
@@ -43,20 +41,17 @@ class MicrophoneListener {
         if (this.paused === true) { this.reco.resume(); this.paused = false; }
     }
 
-    public stop() {
-        this.audioBlob = new Blob(this.recordedChunks);
-        this.stopped = true;
-        this.capture()
+    public stop() : File {
+        this.stopped = true
+        if(this.reco.state === 'recording') this.reco.stop()
+        return this.capture()
     }
 
     private capture() {
-        return this.audioBlob
-
-        // * : Check this for saving file
-        //     const file = new File(buffer, 'me-at-thevoice.mp3', {
-        //         type: blob.type,
-        //         lastModified: Date.now()
-        //     });
+        return new File(this.recordedAudioBlob, 'test.wav', {
+            type: this.options.mimeType,
+            lastModified: Date.now()
+        });
     }
 }
 

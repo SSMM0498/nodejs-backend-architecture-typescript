@@ -4,12 +4,13 @@ import { _NFMHandler, isTouchEvent, isBlocked } from '../Recorder/utils';
 
 type MouseInteractionHandler = (eventKey: keyof typeof MouseInteractions) => ((event: MouseEvent | TouchEvent) => void)
 
-// ! Verify if it works
+// TODO: Verify if it works
 class MouseInteractionWatcher {
     private callBack: (p: eventWithTime) => void
     private handler: MouseInteractionHandler[]
     
     constructor(cb: (p: eventWithTime) => void) {
+        this.setEventListeners = this.setEventListeners.bind(this)
         this.callBack = cb
     }
 
@@ -17,16 +18,18 @@ class MouseInteractionWatcher {
      * watch
      */
     public watch() {
-        const options = { capture: true, passive: true }
         Object.keys(MouseInteractions)
         .filter(
             (key) => Number.isNaN(Number(key)),
         )
-        .forEach((eventKey: keyof typeof MouseInteractions) => {
-            const index = this.handler.push((eventKey) => this.capture(eventKey))
-            const eventName = eventKey.toLowerCase()
-            document.addEventListener(eventName, this.handler[index - 1](eventKey), options)
-        })
+        .forEach(this.setEventListeners)
+    }
+
+    private setEventListeners(eventKey: keyof typeof MouseInteractions) {
+        const options = { capture: true, passive: true }
+        const index = this.handler.push((eventKey) => this.capture(eventKey))
+        const eventName = eventKey.toLowerCase()
+        document.addEventListener(eventName, this.handler[index - 1](eventKey), options)
     }
 
     /**

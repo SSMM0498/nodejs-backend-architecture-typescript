@@ -15,6 +15,8 @@ import MicrophoneListener from "../Listener/MicrophoneListener";
 //  ! : Handle Live Mode
 class Recorder {
     private eventsTimeLine: Array<eventWithTime> = []    //  Array for storing all capture events
+    private audioFile: File                             //  File for storing the recorded audio
+
     private nodeCaptor: NodeCaptor                       //  NodeCaptor Instance for capture node
     private mutationBuffer: MutationBuffer               //  MutationBuffer for handle mutation events
     private lastFullCaptureEvent: eventWithTime
@@ -49,7 +51,6 @@ class Recorder {
         this.cssRulesHandler = new CSSRuleWatcher(addNewEventCb())
         this.mutationHandler = new MutationWatcher(addNewEventCb(), this.mutationBuffer);
 
-        //  TODO: Initialize a microphone listener
         this.microListener = new MicrophoneListener();
     }
 
@@ -65,19 +66,18 @@ class Recorder {
         // Start Watching
         this.scrollHandler.watch()
         this.mouseMoveHandler.watch()
-        this.mouseInteractionHandler.watch()
+        // this.mouseInteractionHandler.watch()
         this.inputHandler.watch()
         this.textSelectionHandler.watch()
         this.cssRulesHandler.watch()
         this.mutationHandler.watch()
 
-        //  TODO: start listenning
+        this.microListener.listen()
     }
 
     /**
      * Stop recording
      */
-    // TODO: implement stop function
     public stop() {
         console.log('stop')
         console.log(this.eventsTimeLine);
@@ -88,11 +88,15 @@ class Recorder {
         // Stop Watching
         this.scrollHandler.stop()
         this.mouseMoveHandler.stop()
-        this.mouseInteractionHandler.stop()
+        // this.mouseInteractionHandler.stop()
         this.inputHandler.stop()
         this.textSelectionHandler.stop()
         this.cssRulesHandler.stop()
         this.mutationHandler.stop()
+
+        // Stop Listenning
+        this.audioFile = this.microListener.stop()
+        console.log(URL.createObjectURL(this.audioFile))
 
         //  TODO: Save to a file
     }
