@@ -40,7 +40,7 @@ class Recorder {
         this.nodeCaptor = new NodeCaptor(document)
 
         //  Initialize the mutation buffer
-        this.mutationBuffer = new MutationBuffer();
+        this.mutationBuffer = new MutationBuffer(this.nodeCaptor);
 
         //  Initialize all watcher
         this.scrollHandler = new ScrollWatcher(addNewEventCb())

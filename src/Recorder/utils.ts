@@ -4,6 +4,8 @@ import {
     throttleOptions
 } from './types'
 
+type blockClass = String | RegExp;
+
 export const _NFMHandler: NodeFormatedMapHandler = {
     map: {},
     getId(n) {
@@ -87,7 +89,7 @@ export function isBlocked(node: Node | null, blockClass: blockClass): boolean {
             needBlock = (node as HTMLElement).classList.contains(blockClass)
         } else {
             ;(node as HTMLElement).classList.forEach((className) => {
-                if (blockClass.test(className)) {
+                if ((blockClass as RegExp).test(className)) {
                     needBlock = true
                 }
             })

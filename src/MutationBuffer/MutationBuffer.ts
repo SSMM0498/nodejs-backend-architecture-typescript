@@ -123,6 +123,7 @@ function isNodeFormated(n: Node | NodeFormated): n is NodeFormated {
  */
 export default class MutationBuffer {
     private frozen: boolean = false;
+    private ncaptor: NodeCaptor;
 
     private texts: textNodeNewValue[] = [];
     private attributes: attributeNewValue[] = [];
@@ -134,6 +135,10 @@ export default class MutationBuffer {
     private addedNodeSet = new Set<Node>();     // Set of added node
     private movedNodeSet = new Set<Node>();     // Set of moved node
     private droppedNodeSet = new Set<Node>();   // Set of dropped node
+
+    constructor(ncaptor: NodeCaptor) {
+        this.ncaptor = ncaptor
+    }
 
     private emissionCallback: (p: eventWithTime) => void;   // Function to save mutations that occur
 
@@ -190,8 +195,7 @@ export default class MutationBuffer {
             adds.push({
                 parentId,
                 nextId,
-                // TODO : I think I must use captureNode
-                node: new NodeCaptor(document).formatNode(n, _NFMHandler.map)!,  //  ! : Improve the process and avoid to instancitate a new Node Captor each time we add a new node
+                node: this.ncaptor.formatNode(n, _NFMHandler.map)!,
             });
         };
 
