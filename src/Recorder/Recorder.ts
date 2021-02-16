@@ -10,6 +10,7 @@ import CSSRuleWatcher from "../Watchers/CSSRuleWatcher";
 import MutationWatcher from "../Watchers/MutationWatcher";
 import TextSelectionWatcher from "../Watchers/TextSelectionWatcher";
 import MicrophoneListener from "../Listener/MicrophoneListener";
+import ViewPortWatcher from "../Watchers/ViewPortWatcher";
 
 //  ! : Handle Iframe Manager
 //  ! : Handle Live Mode
@@ -23,14 +24,15 @@ class Recorder {
     private readonly fullCaptureInterval: number = 2000 //  Constant representing the delay between 2 full capture
 
     //  Watchers
-    private scrollHandler: ScrollWatcher;
-    private mouseMoveHandler: MouseMovementWatcher;
-    private mouseInteractionHandler: MouseInteractionWatcher;
-    private inputHandler: InputWatcher;
-    private textSelectionHandler: TextSelectionWatcher;
-    private cssRulesHandler: CSSRuleWatcher;
-    private mutationHandler: MutationWatcher;
-    private microListener: MicrophoneListener;
+    private scrollHandler: ScrollWatcher
+    private viewPortHandler: ViewPortWatcher
+    private mouseMoveHandler: MouseMovementWatcher
+    private mouseInteractionHandler: MouseInteractionWatcher
+    private inputHandler: InputWatcher
+    private textSelectionHandler: TextSelectionWatcher
+    private cssRulesHandler: CSSRuleWatcher
+    private mutationHandler: MutationWatcher
+    private microListener: MicrophoneListener
     
 
     constructor(document: Document) {
@@ -40,18 +42,19 @@ class Recorder {
         this.nodeCaptor = new NodeCaptor(document)
 
         //  Initialize the mutation buffer
-        this.mutationBuffer = new MutationBuffer(this.nodeCaptor);
+        this.mutationBuffer = new MutationBuffer(this.nodeCaptor)
 
         //  Initialize all watcher
         this.scrollHandler = new ScrollWatcher(addNewEventCb())
+        this.viewPortHandler = new ViewPortWatcher(addNewEventCb())
         this.mouseMoveHandler = new MouseMovementWatcher(addNewEventCb())
         this.mouseInteractionHandler = new MouseInteractionWatcher(addNewEventCb())
         this.inputHandler = new InputWatcher(addNewEventCb())
         this.textSelectionHandler = new TextSelectionWatcher(addNewEventCb())
         this.cssRulesHandler = new CSSRuleWatcher(addNewEventCb())
-        this.mutationHandler = new MutationWatcher(addNewEventCb(), this.mutationBuffer);
+        this.mutationHandler = new MutationWatcher(addNewEventCb(), this.mutationBuffer)
 
-        this.microListener = new MicrophoneListener();
+        this.microListener = new MicrophoneListener()
     }
 
     /**
@@ -65,6 +68,7 @@ class Recorder {
         
         // Start Watching
         this.scrollHandler.watch()
+        this.viewPortHandler.watch()
         this.mouseMoveHandler.watch()
         this.mouseInteractionHandler.watch()
         this.inputHandler.watch()
@@ -87,6 +91,7 @@ class Recorder {
 
         // Stop Watching
         this.scrollHandler.stop()
+        this.viewPortHandler.stop()
         this.mouseMoveHandler.stop()
         this.mouseInteractionHandler.stop()
         this.inputHandler.stop()
