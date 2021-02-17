@@ -26,7 +26,7 @@ class TextSelectionWatcher {
 
     /**
      * capture
-     * TODO : Improve
+     * TODO : Improve (only take needed data in selectrion attribute)
      * ! : Create the Corresponding Action Trigger
      */
     private capture(event: Event) {

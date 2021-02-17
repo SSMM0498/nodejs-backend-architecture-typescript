@@ -2,9 +2,23 @@
  * Represents the type of the node if it'a HTML Element or Text Node
  */
 export enum NodeType {
+    Document,
+    DocumentType,
     Element,
     Text
 }
+
+export type documentNode = {
+    type: NodeType.Document;
+    childNodes: NodeCaptured[];
+};
+
+export type documentTypeNode = {
+    type: NodeType.DocumentType;
+    name: string;
+    publicId: string;
+    systemId: string;
+};
 
 /**
  * Represents an array of all the usefull attributes found in the node
@@ -38,7 +52,7 @@ export type TextNode = {
 export type NodeCaptured = (
     {nodeId: number} &
     {originId?: number} &
-    (| ElementNode | TextNode)
+    (| ElementNode | TextNode | documentNode | documentTypeNode)
 )
 
 /**
