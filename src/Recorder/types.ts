@@ -176,6 +176,8 @@ type mutationCallbackParam = {
     adds: addedNodeMutation[]
 }
 
+export type mutationCallBack = (m: mutationCallbackParam) => void;
+
 export type mousePosition = {
     x: number
     y: number
