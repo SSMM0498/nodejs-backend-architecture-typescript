@@ -6,13 +6,14 @@ class MutationWatcher {
     public mutationBuffer: MutationBuffer
     private mutationObserver: MutationObserver
     private callBack: (p: eventWithTime) => void
+    private doc: Document
 
-    constructor(cb: (p: eventWithTime) => void, mb: MutationBuffer, doc: Document, ifm: IframeManager) {
+    constructor(cb: (p: eventWithTime) => void, doc: Document, mb: MutationBuffer, ifm: IframeManager) {
         this.callBack = cb
         this.mutationBuffer = mb
 
         //  Use the capture method as the emission callback to save mutations that occur
-        this.mutationBuffer.init(this.capture(), doc, ifm);
+        this.mutationBuffer.init(this.capture(), this.doc, ifm);
 
         //  Use the processMutations method as the mutation callback function
         this.mutationObserver = new MutationObserver(
@@ -25,7 +26,7 @@ class MutationWatcher {
      */
     public watch() {
         //  Start observing the Document DOM
-        this.mutationObserver.observe(document, {
+        this.mutationObserver.observe(this.doc, {
             attributes: true,
             attributeOldValue: true,
             characterData: true,

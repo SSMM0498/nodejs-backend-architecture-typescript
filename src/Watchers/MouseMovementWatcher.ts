@@ -4,10 +4,12 @@ import { _NFMHandler, isTouchEvent, throttle } from '../Recorder/utils';
 
 class MouseMovementWatcher {
     private callBack: (p: eventWithTime) => void
+    private doc: Document
     private handler = (e: MouseEvent | TouchEvent) => this.capture(e);
     
-    constructor(cb: (p: eventWithTime) => void) {
+    constructor(cb: (p: eventWithTime) => void, doc: Document) {
         this.callBack = cb
+        this.doc = doc
     }
 
     /**
@@ -15,8 +17,8 @@ class MouseMovementWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('mousemove', this.handler, options)
-        document.addEventListener('touchmove', this.handler, options)
+        this.doc.addEventListener('mousemove', this.handler, options)
+        this.doc.addEventListener('touchmove', this.handler, options)
     }
     
     /**
@@ -24,8 +26,8 @@ class MouseMovementWatcher {
      */
     public stop() {
         const options = { capture: true, passive: true }
-        document.removeEventListener('mousemove', this.handler, options)
-        document.removeEventListener('touchmove', this.handler, options)
+        this.doc.removeEventListener('mousemove', this.handler, options)
+        this.doc.removeEventListener('touchmove', this.handler, options)
     }
 
     /**

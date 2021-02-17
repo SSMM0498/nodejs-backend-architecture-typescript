@@ -6,11 +6,13 @@ const INPUT_TAGS = ['INPUT', 'TEXTAREA', 'SELECT']
 
 class InputWatcher {
     private callBack: (p: eventWithTime) => void
+    private doc: Document
     private handler = (e: Event) => this.capture(e)
     private lastInputValueMap: WeakMap<EventTarget, inputValue> = new WeakMap()
 
-    constructor(cb: (p: eventWithTime) => void) {
+    constructor(cb: (p: eventWithTime) => void, doc: Document) {
         this.callBack = cb
+        this.doc = doc
     }
 
     /**
@@ -18,8 +20,8 @@ class InputWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('input', this.handler, options)
-        document.addEventListener('change', this.handler, options)
+        this.doc.addEventListener('input', this.handler, options)
+        this.doc.addEventListener('change', this.handler, options)
     }
 
     /**
@@ -27,8 +29,8 @@ class InputWatcher {
      */
     public stop() {
         const options = { capture: true, passive: true }
-        document.removeEventListener('input', this.handler, options)
-        document.removeEventListener('change', this.handler, options)
+        this.doc.removeEventListener('input', this.handler, options)
+        this.doc.removeEventListener('change', this.handler, options)
     }
 
     /**
@@ -58,7 +60,7 @@ class InputWatcher {
 
         const name: string | undefined = (target as HTMLInputElement).name
         if (type === 'radio' && name && isChecked) {
-            document
+            this.doc
                 .querySelectorAll(`input[type="radio"][name="${name}"]`)
                 .forEach((el) => {
                     if (el !== target) {

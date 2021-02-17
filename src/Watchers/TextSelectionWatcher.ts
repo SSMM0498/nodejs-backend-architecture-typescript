@@ -2,10 +2,12 @@ import { eventWithTime, EventType, IncrementalSource, inputValue } from '../Reco
 
 class TextSelectionWatcher {
     private callBack: (p: eventWithTime) => void
+    private doc: Document
     private handler = (e: Event) => this.capture(e)
 
-    constructor(cb: (p: eventWithTime) => void) {
+    constructor(cb: (p: eventWithTime) => void, doc: Document) {
         this.callBack = cb
+        this.doc = doc
     }
 
     /**
@@ -13,7 +15,7 @@ class TextSelectionWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('selectionchange', this.handler, options)
+        this.doc.addEventListener('selectionchange', this.handler, options)
     }
 
     /**
@@ -21,7 +23,7 @@ class TextSelectionWatcher {
      */
     public stop() {
         const options = { capture: true, passive: true }
-        document.removeEventListener('selectionchange', this.handler, options)
+        this.doc.removeEventListener('selectionchange', this.handler, options)
     }
 
     /**
@@ -30,7 +32,7 @@ class TextSelectionWatcher {
      * ! : Create the Corresponding Action Trigger
      */
     private capture(event: Event) {
-        const sel = document.getSelection()
+        const sel = this.doc.getSelection()
         if (sel) {
             this.callBack({
                 type: EventType.IncrementalCapture,

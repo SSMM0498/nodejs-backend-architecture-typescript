@@ -5,9 +5,11 @@ import { _NFMHandler } from '../Recorder/utils';
 
 class CSSRuleWatcher {
     private callBack: (p: eventWithTime) => void
+    private doc: Document
 
-    constructor(cb: (p: eventWithTime) => void) {
+    constructor(cb: (p: eventWithTime) => void, doc: Document) {
         this.callBack = cb
+        this.doc = doc
     }
 
     /**

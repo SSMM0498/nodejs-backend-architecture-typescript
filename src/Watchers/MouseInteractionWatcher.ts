@@ -5,11 +5,13 @@ import { _NFMHandler, isTouchEvent, isBlocked } from '../Recorder/utils';
 type MouseInteractionHandler = (event: MouseEvent | TouchEvent) => void
 class MouseInteractionWatcher {
     private callBack: (p: eventWithTime) => void
+    private doc: Document
     private handler: MouseInteractionHandler[] = []
     
-    constructor(cb: (p: eventWithTime) => void) {
-        this.setEventListeners = this.setEventListeners.bind(this)
+    constructor(cb: (p: eventWithTime) => void, doc: Document) {
         this.callBack = cb
+        this.doc = doc
+        this.setEventListeners = this.setEventListeners.bind(this)
     }
 
     /**
@@ -27,7 +29,7 @@ class MouseInteractionWatcher {
         const options = { capture: true, passive: true }
         const index = this.handler.push(this.capture(eventKey))
         const eventName = eventKey.toLowerCase()
-        document.addEventListener(eventName, this.handler[index - 1], options)
+        this.doc.addEventListener(eventName, this.handler[index - 1], options)
     }
 
     /**
@@ -42,7 +44,7 @@ class MouseInteractionWatcher {
         .forEach((eventKey: keyof typeof MouseInteractions) => {
             const index = this.handler.push(this.capture(eventKey))
             const eventName = eventKey.toLowerCase()
-            document.removeEventListener(eventName, this.handler[index - 1], options)
+            this.doc.removeEventListener(eventName, this.handler[index - 1], options)
         })
     }
 

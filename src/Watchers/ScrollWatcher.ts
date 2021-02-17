@@ -4,10 +4,12 @@ import { _NFMHandler, throttle } from '../Recorder/utils';
 
 class ScrollWatcher {
     private callBack: (p: eventWithTime) => void
+    private doc: Document
     private handler = (e: Event) => this.capture(e as UIEvent)
 
-    constructor(cb: (p: eventWithTime) => void) {
+    constructor(cb: (p: eventWithTime) => void, doc: Document) {
         this.callBack = cb
+        this.doc = doc
     }
 
     /**
@@ -15,7 +17,7 @@ class ScrollWatcher {
      */
     public watch() {
         const options = { capture: true, passive: true }
-        document.addEventListener('scroll', this.handler, options)
+        this.doc.addEventListener('scroll', this.handler, options)
     }
     
     /**
@@ -23,7 +25,7 @@ class ScrollWatcher {
      */
     public stop() {
         const options = { capture: true, passive: true }
-        document.removeEventListener('scroll', this.handler, options)
+        this.doc.removeEventListener('scroll', this.handler, options)
     }
 
     /**
@@ -32,8 +34,8 @@ class ScrollWatcher {
     private capture(evt: UIEvent): void {
         throttle<UIEvent>((evt) => {
             const id = _NFMHandler.getId(evt.target as NodeFormated)
-            if (evt.target === document) {
-                const scrollEl = (document.scrollingElement || document.documentElement)!
+            if (evt.target === this.doc) {
+                const scrollEl = (this.doc.scrollingElement || this.doc.documentElement)!
                 this.callBack({
                     type: EventType.IncrementalCapture,
                     data: {

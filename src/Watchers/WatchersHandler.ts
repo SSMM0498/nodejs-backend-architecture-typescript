@@ -27,14 +27,14 @@ class WatchersHandler {
         const mutationBuffer = new MutationBuffer(nodeCaptor)
         this.mutationBuffers.push(mutationBuffer)
 
-        this.scrollHandler = new ScrollWatcher(addNewEventCb())
+        this.scrollHandler = new ScrollWatcher(addNewEventCb(), doc)
         this.viewPortHandler = new ViewPortWatcher(addNewEventCb())
-        this.mouseMoveHandler = new MouseMovementWatcher(addNewEventCb())
-        this.mouseInteractionHandler = new MouseInteractionWatcher(addNewEventCb())
-        this.inputHandler = new InputWatcher(addNewEventCb())
-        this.textSelectionHandler = new TextSelectionWatcher(addNewEventCb())
-        this.cssRulesHandler = new CSSRuleWatcher(addNewEventCb())
-        this.mutationHandler = new MutationWatcher(addNewEventCb(), mutationBuffer, doc, ifm)
+        this.mouseMoveHandler = new MouseMovementWatcher(addNewEventCb(), doc)
+        this.mouseInteractionHandler = new MouseInteractionWatcher(addNewEventCb(), doc)
+        this.inputHandler = new InputWatcher(addNewEventCb(), doc)
+        this.textSelectionHandler = new TextSelectionWatcher(addNewEventCb(), doc)
+        this.cssRulesHandler = new CSSRuleWatcher(addNewEventCb(), doc)
+        this.mutationHandler = new MutationWatcher(addNewEventCb(), doc, mutationBuffer, ifm)
     }
 
     /**
