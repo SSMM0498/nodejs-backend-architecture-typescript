@@ -1,11 +1,13 @@
-import { 
+import {
     NodeCaptured,
     DocumentNodesMap,
     NodeFormated,
     NodeType,
     ElementNode,
     TextNode,
-    attributes
+    attributes,
+    documentNode,
+    documentTypeNode
 } from "./types"
 import {
     transformAttribute,
@@ -15,12 +17,10 @@ import {
 
 class NodeCaptor {
     private currentId: number       // id for the current node
-    private currentRootId: number   // id for the current root (document or iframe) node
     private documentRoot: Document  // the root document element
 
     constructor(n: Document) {
         this.currentId = 0
-        this.currentRootId = 1
         this.documentRoot = n
     }
 
@@ -31,15 +31,28 @@ class NodeCaptor {
      * @param Node : Node to capture
      * @returns (ElementNode | TextNode) & { originId?: number } | false
      */
-    public captureNode(n: Node, origin?: number): (ElementNode | TextNode) & { originId?: number } | false {
-        let originId: number | undefined
-        if ((n as Node).ownerDocument === this.documentRoot) {
-            originId = 0
-        } else {
-            originId = this.currentRootId
+    public captureNode(doc: Document, n: Node): (documentNode | documentTypeNode | ElementNode | TextNode) & { originId?: number } | false {
+        let originId: number | undefined;
+        if (((doc as unknown) as NodeFormated)._cnode) {
+            const docId = ((doc as unknown) as NodeFormated)._cnode.nodeId;
+            originId = docId === 1 ? undefined : docId;
         }
-
+    
         switch (n.nodeType) {
+            case n.DOCUMENT_NODE:
+                return {
+                    type: NodeType.Document,
+                    childNodes: [],
+                    originId,
+                };
+            case n.DOCUMENT_TYPE_NODE:
+                return {
+                    type: NodeType.DocumentType,
+                    name: (n as DocumentType).name,
+                    publicId: (n as DocumentType).publicId,
+                    systemId: (n as DocumentType).systemId,
+                    originId,
+                };
             case n.ELEMENT_NODE:
                 if ((n as HTMLElement).classList.contains('norecord')) {
                     return false;
@@ -47,14 +60,14 @@ class NodeCaptor {
                 // Get the tag name
                 const ElementName = (n as HTMLElement).tagName.toLowerCase()
                 let attributes: attributes = {}
-
+    
                 // Get global attribute
-                getGlobalAttribute(n, this.documentRoot, attributes)
-
+                getGlobalAttribute(n, doc, attributes)
+    
                 // Get the css rules
                 // external css
                 if (ElementName === 'link') {
-                    getExternalCssAttribute(n, this.documentRoot, attributes)
+                    getExternalCssAttribute(n, doc, attributes)
                 }
                 // internal css
                 if (ElementName === 'style') {
@@ -64,7 +77,7 @@ class NodeCaptor {
                 if (ElementName === 'input' || ElementName === 'textarea' || ElementName === 'select' || ElementName === 'option') {
                     getFormFieldAttributes(n, ElementName, attributes)
                 }
-
+    
                 // canvas image data
                 if (ElementName === 'canvas') {
                     getCanvasAttributes(n, attributes)
@@ -73,7 +86,7 @@ class NodeCaptor {
                 if (ElementName === 'audio' || ElementName === 'video') {
                     getMediaAttributes(n, attributes)
                 }
-
+    
                 return {
                     originId,
                     type: NodeType.Element,
@@ -86,15 +99,15 @@ class NodeCaptor {
                 // So just let it be undefined which is ok in this use case.
                 const parentElementName =
                     n.parentNode && (n.parentNode as HTMLElement).tagName
-                
+    
                 if (parentElementName === 'SCRIPT') {
                     return false;
                 }
-
+    
                 let textContent = (n as Text).textContent?.trim()
-
+    
                 const isCSSRules = parentElementName === 'STYLE' ? true : false
-
+    
                 if (textContent && !isCSSRules) {
                     return {
                         originId,
@@ -108,6 +121,7 @@ class NodeCaptor {
             default:
                 return false
         }
+        
     }
 
     /**
@@ -115,10 +129,16 @@ class NodeCaptor {
      * @param Node : Node to format
      * @returns NodeCaptured
      */
-    public formatNode(currentNode: Node | NodeFormated | null, map: DocumentNodesMap): NodeCaptured | null {
+    public formatNode(
+        currentNode: Node | NodeFormated | null,
+        map: DocumentNodesMap,
+        doc: Document = this.documentRoot,
+        onSerialize?: (n: NodeFormated) => unknown,
+        onIframeLoad?: (iframeNodeFormated: NodeFormated, node: NodeCaptured) => unknown
+    ): NodeCaptured | null {
         if (!currentNode) return null
 
-        const _capturedNode = this.captureNode(currentNode as Node)
+        const _capturedNode = this.captureNode(doc, currentNode as Node)
 
         if (!_capturedNode) return null
 
@@ -136,10 +156,14 @@ class NodeCaptor {
 
         map[nodeId] = currentNode as NodeFormated
 
+        if (onSerialize) {
+            onSerialize(currentNode as NodeFormated);
+        }
+
         //  format and capture each child of the current node
         if (capturedNode.type === NodeType.Element) {
             for (const childNode of Array.from((currentNode as Node).childNodes)) {
-                const capturedChildNode = this.formatNode(childNode, map)
+                const capturedChildNode = this.formatNode(childNode, map, doc)
                 if (capturedChildNode) {
                     capturedNode.childNodes.push(capturedChildNode)
                 }
@@ -151,18 +175,23 @@ class NodeCaptor {
             capturedNode.type === NodeType.Element &&
             capturedNode.elementName === 'iframe'
         ) {
-            const iframeDoc = (currentNode as HTMLIFrameElement).contentDocument;
-            if (iframeDoc) {
-                const iframeElements = Array.from((iframeDoc as Document).childNodes);
-                const parsedIframeNode = this.formatNode(
-                    iframeElements[1],
-                    map,
-                );
-                if (parsedIframeNode) {
-                    capturedNode.childNodes.push(parsedIframeNode);
+            onceIframeLoaded(
+                currentNode as HTMLIFrameElement,
+                () => {
+                    const iframeDoc = (currentNode as HTMLIFrameElement).contentDocument;
+                    if (iframeDoc && onIframeLoad) {
+                        const iframeElements = Array.from((iframeDoc as Document).childNodes);
+                        const parsedIframeNode = this.formatNode(
+                            iframeElements[1],
+                            map,
+                            iframeDoc,
+                        );
+                        if (parsedIframeNode) {
+                            onIframeLoad(currentNode as NodeFormated, parsedIframeNode);
+                        }
+                    }
                 }
-                this.currentRootId++
-            }
+            );
         }
 
         return capturedNode
@@ -257,6 +286,44 @@ function getMediaAttributes(n: Node, attributes: attributes) {
     attributes._mediaState = (n as HTMLMediaElement).paused
         ? 'paused'
         : 'played'
+}
+
+function onceIframeLoaded(
+    iframeEl: HTMLIFrameElement,
+    listener: () => unknown,
+) {
+    const win = iframeEl.contentWindow;
+    if (!win) {
+        return;
+    }
+    // document is loading
+    let fired = false;
+    if (win.document.readyState !== 'complete') {
+        const timer = setTimeout(() => {
+            if (!fired) {
+                listener();
+                fired = true;
+            }
+        }, 5000);
+        iframeEl.addEventListener('load', () => {
+            clearTimeout(timer);
+            fired = true;
+            listener();
+        });
+        return;
+    }
+    // check blank frame for Chrome
+    const blankUrl = 'about:blank';
+    if (
+        win.location.href !== blankUrl ||
+        iframeEl.src === blankUrl ||
+        iframeEl.src === ''
+    ) {
+        listener();
+        return;
+    }
+    // use default listener
+    iframeEl.addEventListener('load', listener);
 }
 
 export default NodeCaptor
