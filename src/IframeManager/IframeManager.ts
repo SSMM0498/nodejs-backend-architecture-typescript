@@ -1,13 +1,13 @@
 import { NodeCaptured, NodeFormated } from '../NodeCaptor/types';
-import { mutationCallBack } from '../Recorder/types';
+import { EventType, eventWithTime, IncrementalSource } from '../Recorder/types';
 
 export class IframeManager {
     private iframes: WeakMap<HTMLIFrameElement, true> = new WeakMap()
-    private mutationCb: mutationCallBack
+    private mutationCb: (p: eventWithTime) => void
     private loadListener?: (iframeEl: HTMLIFrameElement) => unknown
 
-    constructor(options: { mutationCb: mutationCallBack }) {
-        this.mutationCb = options.mutationCb
+    constructor(mutationCb: (p: eventWithTime) => void ) {
+        this.mutationCb = mutationCb
     }
 
     public addIframe(iframeEl: HTMLIFrameElement) {
@@ -20,16 +20,21 @@ export class IframeManager {
 
     public attachIframe(iframeEl: NodeFormated, childSn: NodeCaptured) {
         this.mutationCb({
-            adds: [
-                {
-                    parentId: iframeEl._cnode.nodeId,
-                    nextId: null,
-                    node: childSn,
+                type: EventType.IncrementalCapture,
+                data: {
+                    source: IncrementalSource.Mutation,
+                        adds: [
+                            {
+                                parentId: iframeEl._cnode.nodeId,
+                                nextId: null,
+                                node: childSn,
+                            },
+                        ],
+                        removes: [],
+                        texts: [],
+                        attributes: [],
                 },
-            ],
-            removes: [],
-            texts: [],
-            attributes: [],
+                timestamp: Date.now()
         });
         this.loadListener?.((iframeEl as unknown) as HTMLIFrameElement);
     }

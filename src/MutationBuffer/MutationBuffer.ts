@@ -1,8 +1,9 @@
 import {
     NodeFormated,
+    NodeType,
 } from '../NodeCaptor/types';
 import NodeCaptor from '../NodeCaptor/NodeCaptor'
-
+import { IframeManager } from '../IframeManager/IframeManager'
 import {
     mutationRecord,
     textNodeNewValue,
@@ -66,7 +67,7 @@ class DoubleLinkedList {
             if (current) {
                 current.previous = node;
             }
-        //  Rearrange the next sibling of the current node
+            //  Rearrange the next sibling of the current node
         } else if (n.nextSibling && isNodeInLinkedList(n.nextSibling)) {
             const current = n.nextSibling._ln!.previous;
             node.previous = current;
@@ -75,7 +76,7 @@ class DoubleLinkedList {
             if (current) {
                 current.next = node;
             }
-        //  Redefine the head of the list
+            //  Redefine the head of the list
         } else {
             if (this.head) {
                 this.head.previous = node;
@@ -124,6 +125,7 @@ function isNodeFormated(n: Node | NodeFormated): n is NodeFormated {
 export default class MutationBuffer {
     private frozen: boolean = false;
     private ncaptor: NodeCaptor;
+    private iframeManager: IframeManager;
 
     private texts: textNodeNewValue[] = [];
     private attributes: attributeNewValue[] = [];
@@ -135,6 +137,7 @@ export default class MutationBuffer {
     private addedNodeSet = new Set<Node>();     // Set of added node
     private movedNodeSet = new Set<Node>();     // Set of moved node
     private droppedNodeSet = new Set<Node>();   // Set of dropped node
+    private doc: Document;
 
     constructor(ncaptor: NodeCaptor) {
         this.ncaptor = ncaptor
@@ -142,7 +145,11 @@ export default class MutationBuffer {
 
     private emissionCallback: (p: eventWithTime) => void;   // Function to save mutations that occur
 
-    public init(cb: (p: eventWithTime) => void) { this.emissionCallback = cb; }
+    public init(cb: (p: eventWithTime) => void, doc: Document, iframeManager: IframeManager) {
+        this.emissionCallback = cb;
+        this.doc = doc;
+        this.iframeManager = iframeManager;
+    }
 
     public freeze() {
         this.frozen = true;
@@ -184,7 +191,7 @@ export default class MutationBuffer {
         };
 
         const pushAdd = (n: Node) => {
-            if (!n.parentNode) {
+            if (!n.parentNode || !this.doc.contains(n)) {
                 return;
             }
             const parentId = _NFMHandler.getId((n.parentNode as Node) as NodeFormated);
@@ -195,7 +202,23 @@ export default class MutationBuffer {
             adds.push({
                 parentId,
                 nextId,
-                node: this.ncaptor.formatNode(n, _NFMHandler.map)!,
+                node: this.ncaptor.formatNode(
+                    n,
+                    _NFMHandler.map,
+                    this.doc,
+                    (currentN) => {
+                        if (
+                            currentN._cnode.type === NodeType.Element &&
+                            currentN._cnode.elementName === 'iframe'
+                        ) {
+                            this.iframeManager.addIframe(
+                                (currentN as unknown) as HTMLIFrameElement,
+                            );
+                        }
+                    },
+                    (iframe, childSn) => {
+                        this.iframeManager.attachIframe(iframe, childSn);
+                    })!,
             });
         };
 
@@ -345,7 +368,7 @@ export default class MutationBuffer {
                 }
                 // overwrite attribute if the mutations was triggered in same time
                 item.attributes[m.attributeName!] = transformAttribute(
-                    document,
+                    this.doc,
                     m.attributeName!,
                     value!,             //  attribute new value
                 );
