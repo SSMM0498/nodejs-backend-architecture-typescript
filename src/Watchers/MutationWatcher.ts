@@ -11,6 +11,7 @@ class MutationWatcher {
     constructor(cb: (p: eventWithTime) => void, doc: Document, mb: MutationBuffer, ifm: IframeManager) {
         this.callBack = cb
         this.mutationBuffer = mb
+        this.doc = doc
 
         //  Use the capture method as the emission callback to save mutations that occur
         this.mutationBuffer.init(this.capture(), this.doc, ifm);

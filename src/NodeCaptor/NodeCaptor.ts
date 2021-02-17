@@ -17,7 +17,6 @@ import {
 
 class NodeCaptor {
     private currentId: number       // id for the current node
-    private documentRoot: Document  // the root document element
 
     constructor() {
         this.currentId = 0
@@ -160,7 +159,7 @@ class NodeCaptor {
         }
 
         //  format and capture each child of the current node
-        if (capturedNode.type === NodeType.Element) {
+        if (capturedNode.type === NodeType.Document || capturedNode.type === NodeType.Element) {
             for (const childNode of Array.from((currentNode as Node).childNodes)) {
                 const capturedChildNode = this.formatNode(childNode, map, doc)
                 if (capturedChildNode) {
@@ -205,10 +204,9 @@ class NodeCaptor {
         onIframeLoad: (iframeNodeFormated: NodeFormated, node: NodeCaptured) => unknown
     ): [NodeCaptured | null, DocumentNodesMap] {
         const DocumentNodesMap: DocumentNodesMap = {}
-        const n = Array.from((this.documentRoot as Node).childNodes)
         return [
             this.formatNode(
-                n[1],
+                doc,
                 DocumentNodesMap,
                 doc,
                 onSerialize,

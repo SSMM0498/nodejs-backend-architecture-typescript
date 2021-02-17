@@ -40,7 +40,7 @@ class ScrollWatcher {
                     type: EventType.IncrementalCapture,
                     data: {
                         source: IncrementalSource.Scroll,
-                        id: -100,   //  ! : CHECK THIS IN THE REPLAYER
+                        id,
                         x: scrollEl.scrollLeft,
                         y: scrollEl.scrollTop,
                     },
