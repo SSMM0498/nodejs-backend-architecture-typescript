@@ -3,6 +3,7 @@ import { EventType, eventWithTime, IncrementalSource } from "./types";
 import MutationBuffer from "../MutationBuffer/MutationBuffer";
 import NodeCaptor from "../NodeCaptor/NodeCaptor";
 import ScrollWatcher from "../Watchers/ScrollWatcher";
+import ViewPortWatcher from "../Watchers/ViewPortWatcher";
 import MouseMovementWatcher from "../Watchers/MouseMovementWatcher";
 import MouseInteractionWatcher from "../Watchers/MouseInteractionWatcher";
 import InputWatcher from "../Watchers/InputWatcher";
@@ -10,7 +11,6 @@ import CSSRuleWatcher from "../Watchers/CSSRuleWatcher";
 import MutationWatcher from "../Watchers/MutationWatcher";
 import TextSelectionWatcher from "../Watchers/TextSelectionWatcher";
 import MicrophoneListener from "../Listener/MicrophoneListener";
-import ViewPortWatcher from "../Watchers/ViewPortWatcher";
 
 //  ! : Handle Iframe Manager
 //  ! : Handle Live Mode

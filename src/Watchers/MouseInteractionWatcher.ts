@@ -51,7 +51,6 @@ class MouseInteractionWatcher {
      */
     private capture(eventKey: keyof typeof MouseInteractions) : ((event: MouseEvent | TouchEvent) => void) {
         return (event: MouseEvent | TouchEvent) => {
-            console.log(event);
             const id = _NFMHandler.getId(event.target as NodeFormated)
             const { clientX, clientY } = isTouchEvent(event)
                 ? event.changedTouches[0]
