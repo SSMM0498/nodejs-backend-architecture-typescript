@@ -1,3 +1,4 @@
+import { IframeManager } from "../IframeManager/IframeManager";
 import MutationBuffer from "../MutationBuffer/MutationBuffer";
 import { eventWithTime, Watcher } from "../Recorder/types";
 
@@ -6,12 +7,12 @@ class MutationWatcher {
     private mutationObserver: MutationObserver
     private callBack: (p: eventWithTime) => void
 
-    constructor(cb: (p: eventWithTime) => void, mb: MutationBuffer) {
+    constructor(cb: (p: eventWithTime) => void, mb: MutationBuffer, doc: Document, ifm: IframeManager) {
         this.callBack = cb
         this.mutationBuffer = mb
 
         //  Use the capture method as the emission callback to save mutations that occur
-        this.mutationBuffer.init(this.capture());
+        this.mutationBuffer.init(this.capture(), doc, ifm);
 
         //  Use the processMutations method as the mutation callback function
         this.mutationObserver = new MutationObserver(

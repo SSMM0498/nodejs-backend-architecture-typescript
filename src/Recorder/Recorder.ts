@@ -2,38 +2,28 @@ import { getWindowHeight, getWindowWidth, _NFMHandler } from "./utils";
 import { EventType, eventWithTime, IncrementalSource } from "./types";
 import MutationBuffer from "../MutationBuffer/MutationBuffer";
 import NodeCaptor from "../NodeCaptor/NodeCaptor";
-import ScrollWatcher from "../Watchers/ScrollWatcher";
-import ViewPortWatcher from "../Watchers/ViewPortWatcher";
-import MouseMovementWatcher from "../Watchers/MouseMovementWatcher";
-import MouseInteractionWatcher from "../Watchers/MouseInteractionWatcher";
-import InputWatcher from "../Watchers/InputWatcher";
-import CSSRuleWatcher from "../Watchers/CSSRuleWatcher";
-import MutationWatcher from "../Watchers/MutationWatcher";
-import TextSelectionWatcher from "../Watchers/TextSelectionWatcher";
+import WatchersHandler from "../Watchers/WatchersHandler";
 import MicrophoneListener from "../Listener/MicrophoneListener";
+import { IframeManager } from "../IframeManager/IframeManager";
 
 //  ! : Handle Iframe Manager
 //  ! : Handle Live Mode
 class Recorder {
-    private eventsTimeLine: Array<eventWithTime> = []    //  Array for storing all capture events
+    private eventsTimeLine: Array<eventWithTime> = []   //  Array for storing all capture events
     private audioFile: File                             //  File for storing the recorded audio
 
     private nodeCaptor: NodeCaptor                       //  NodeCaptor Instance for capture node
     private mutationBuffer: MutationBuffer               //  MutationBuffer for handle mutation events
+    private iframeManager: IframeManager                 //  IframeManager Instance for handle all iframe
     private lastFullCaptureEvent: eventWithTime
-    private readonly fullCaptureInterval: number = 2000 //  Constant representing the delay between 2 full capture
+    private readonly fullCaptureInterval: number = 2000  //  Constant representing the delay between 2 full capture
 
     //  Watchers
-    private scrollHandler: ScrollWatcher
-    private viewPortHandler: ViewPortWatcher
-    private mouseMoveHandler: MouseMovementWatcher
-    private mouseInteractionHandler: MouseInteractionWatcher
-    private inputHandler: InputWatcher
-    private textSelectionHandler: TextSelectionWatcher
-    private cssRulesHandler: CSSRuleWatcher
-    private mutationHandler: MutationWatcher
+    private watchers: WatchersHandler
+
+    //  Listener
     private microListener: MicrophoneListener
-    
+
 
     constructor(document: Document) {
         const addNewEventCb = () => (p: eventWithTime) => this.addNewEvent(p)
@@ -41,18 +31,14 @@ class Recorder {
         //  Initialize the node captor
         this.nodeCaptor = new NodeCaptor(document)
 
+        //  Initialize the iframe manager
+        this.iframeManager = new IframeManager(addNewEventCb())
+
         //  Initialize the mutation buffer
         this.mutationBuffer = new MutationBuffer(this.nodeCaptor)
 
         //  Initialize all watcher
-        this.scrollHandler = new ScrollWatcher(addNewEventCb())
-        this.viewPortHandler = new ViewPortWatcher(addNewEventCb())
-        this.mouseMoveHandler = new MouseMovementWatcher(addNewEventCb())
-        this.mouseInteractionHandler = new MouseInteractionWatcher(addNewEventCb())
-        this.inputHandler = new InputWatcher(addNewEventCb())
-        this.textSelectionHandler = new TextSelectionWatcher(addNewEventCb())
-        this.cssRulesHandler = new CSSRuleWatcher(addNewEventCb())
-        this.mutationHandler = new MutationWatcher(addNewEventCb(), this.mutationBuffer)
+        this.watchers = new WatchersHandler(this.nodeCaptor, this.iframeManager, document, addNewEventCb) 
 
         this.microListener = new MicrophoneListener()
     }
@@ -65,18 +51,15 @@ class Recorder {
 
         //  Take the first full capture
         this.takeFullCapture(true)
-        
+
         // Start Watching
-        this.scrollHandler.watch()
-        this.viewPortHandler.watch()
-        this.mouseMoveHandler.watch()
-        this.mouseInteractionHandler.watch()
-        this.inputHandler.watch()
-        this.textSelectionHandler.watch()
-        this.cssRulesHandler.watch()
-        this.mutationHandler.watch()
+        this.watchers.watch()
 
         this.microListener.listen()
+
+        this.iframeManager.addLoadListener((iframeEl) => {
+            // handlers.push(observe(iframeEl.contentDocument!));
+        });
     }
 
     /**
@@ -90,14 +73,7 @@ class Recorder {
         this.takeFullCapture()
 
         // Stop Watching
-        this.scrollHandler.stop()
-        this.viewPortHandler.stop()
-        this.mouseMoveHandler.stop()
-        this.mouseInteractionHandler.stop()
-        this.inputHandler.stop()
-        this.textSelectionHandler.stop()
-        this.cssRulesHandler.stop()
-        this.mutationHandler.stop()
+        this.watchers.stop()
 
         // Stop Listenning
         this.audioFile = this.microListener.stop()

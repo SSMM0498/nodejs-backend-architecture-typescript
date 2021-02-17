@@ -176,8 +176,6 @@ type mutationCallbackParam = {
     adds: addedNodeMutation[]
 }
 
-export type mutationCallBack = (m: mutationCallbackParam) => void;
-
 export type mousePosition = {
     x: number
     y: number
@@ -244,6 +242,11 @@ export const enum MediaInteractions {
 export type mediaInteractionParam = {
     type: MediaInteractions
     id: number
+}
+
+export type DocumentDimension = {
+    x: number;
+    y: number;
 }
 
 export type NodeFormatedMapHandler = {

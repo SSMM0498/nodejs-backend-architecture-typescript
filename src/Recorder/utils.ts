@@ -1,5 +1,7 @@
-import { NodeFormated } from '../NodeCaptor/types';
+import { NodeCaptured, NodeFormated, NodeType } from '../NodeCaptor/types';
 import {
+    addedNodeMutation,
+    DocumentDimension,
     NodeFormatedMapHandler,
     throttleOptions
 } from './types'
@@ -9,7 +11,7 @@ type blockClass = String | RegExp;
 export const _NFMHandler: NodeFormatedMapHandler = {
     map: {},
     getId(n) {
-        // if n is not a serialized INode, use -1 as its id.
+        // if n is not a serialized NodeFormated, use -1 as its id.
         if (!n._cnode) { return -1 }
         return n._cnode.nodeId
     },
@@ -88,7 +90,7 @@ export function isBlocked(node: Node | null, blockClass: blockClass): boolean {
         if (typeof blockClass === 'string') {
             needBlock = (node as HTMLElement).classList.contains(blockClass)
         } else {
-            ;(node as HTMLElement).classList.forEach((className) => {
+            ; (node as HTMLElement).classList.forEach((className) => {
                 if ((blockClass as RegExp).test(className)) {
                     needBlock = true
                 }
@@ -129,3 +131,37 @@ export function polyfill() {
             .forEach as unknown) as NodeList['forEach']
     }
 }
+
+type HTMLIFrameNodeFormated = HTMLIFrameElement & {
+    _cnode: NodeCaptured;
+};
+export type AppendedIframe = {
+    mutationInQueue: addedNodeMutation;
+    builtNode: HTMLIFrameNodeFormated;
+};
+
+export function isIframeNodeFormated(node: NodeFormated): node is HTMLIFrameNodeFormated {
+    // node can be document fragment when using the virtual parent feature
+    if (!node._cnode) {
+        return false;
+    }
+    return node._cnode.type === NodeType.Element && node._cnode.elementName === 'iframe';
+}
+
+export function getBaseDimension(node: Node): DocumentDimension {
+    const frameElement = node.ownerDocument?.defaultView?.frameElement;
+    if (!frameElement) {
+        return {
+            x: 0,
+            y: 0,
+        };
+    }
+
+    const frameDimension = frameElement.getBoundingClientRect();
+    const frameBaseDimension = getBaseDimension(frameElement);
+    return {
+        x: frameDimension.x + frameBaseDimension.x,
+        y: frameDimension.y + frameBaseDimension.y,
+    };
+}
+
