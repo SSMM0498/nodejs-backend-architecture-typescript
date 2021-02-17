@@ -12,7 +12,7 @@ import TextSelectionWatcher from "./TextSelectionWatcher"
 import ViewPortWatcher from "./ViewPortWatcher"
 
 class WatchersHandler {
-    private mutationBuffers: MutationBuffer[] = []
+    public mutationBuffers: MutationBuffer[] = []
 
     private scrollHandler: ScrollWatcher
     private viewPortHandler: ViewPortWatcher

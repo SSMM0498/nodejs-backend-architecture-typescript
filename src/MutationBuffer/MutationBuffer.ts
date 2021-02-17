@@ -124,6 +124,7 @@ function isNodeFormated(n: Node | NodeFormated): n is NodeFormated {
  */
 export default class MutationBuffer {
     private frozen: boolean = false;
+    private locked: boolean = false;
     private ncaptor: NodeCaptor;
     private iframeManager: IframeManager;
 
@@ -157,20 +158,31 @@ export default class MutationBuffer {
 
     public unfreeze() {
         this.frozen = false;
+        this.emit();
     }
 
     public isFrozen() {
         return this.frozen;
     }
 
+    public lock() {
+        this.locked = true;
+    }
+
+    public unlock() {
+        this.locked = false;
+        this.emit();
+    }
+
     public processMutations = (mutations: mutationRecord[]) => {
         mutations.forEach(this.bufferizeMutation);
-        if (!this.frozen) {
-            this.emit();
-        }
+        this.emit();
     };
 
     public emit = () => {
+        if (this.frozen || this.locked) {
+            return;
+        }
         // delay any modification of the _NFHandler until this function
         // so that the _NFHandler for takeFullSnapshot doesn't get mutated while it's event is being processed
         const adds: addedNodeMutation[] = [];

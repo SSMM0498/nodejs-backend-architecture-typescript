@@ -19,9 +19,8 @@ class NodeCaptor {
     private currentId: number       // id for the current node
     private documentRoot: Document  // the root document element
 
-    constructor(n: Document) {
+    constructor() {
         this.currentId = 0
-        this.documentRoot = n
     }
 
     /**
@@ -132,7 +131,7 @@ class NodeCaptor {
     public formatNode(
         currentNode: Node | NodeFormated | null,
         map: DocumentNodesMap,
-        doc: Document = this.documentRoot,
+        doc: Document,
         onSerialize?: (n: NodeFormated) => unknown,
         onIframeLoad?: (iframeNodeFormated: NodeFormated, node: NodeCaptured) => unknown
     ): NodeCaptured | null {
@@ -200,10 +199,23 @@ class NodeCaptor {
     /**
      * capture
      */
-    public capture(): [NodeCaptured | null, DocumentNodesMap] {
+    public capture(
+        doc: Document,
+        onSerialize: (n: NodeFormated) => unknown,
+        onIframeLoad: (iframeNodeFormated: NodeFormated, node: NodeCaptured) => unknown
+    ): [NodeCaptured | null, DocumentNodesMap] {
         const DocumentNodesMap: DocumentNodesMap = {}
         const n = Array.from((this.documentRoot as Node).childNodes)
-        return [this.formatNode((n[1]), DocumentNodesMap), DocumentNodesMap]
+        return [
+            this.formatNode(
+                n[1],
+                DocumentNodesMap,
+                doc,
+                onSerialize,
+                onIframeLoad
+            ),
+            DocumentNodesMap
+        ]
     }
 }
 

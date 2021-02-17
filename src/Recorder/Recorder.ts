@@ -1,4 +1,4 @@
-import { getWindowHeight, getWindowWidth, _NFMHandler } from "./utils";
+import { getWindowHeight, getWindowWidth, isIframeNodeFormated, _NFMHandler } from "./utils";
 import { EventType, eventWithTime, IncrementalSource } from "./types";
 import MutationBuffer from "../MutationBuffer/MutationBuffer";
 import NodeCaptor from "../NodeCaptor/NodeCaptor";
@@ -17,30 +17,40 @@ class Recorder {
     private iframeManager: IframeManager                 //  IframeManager Instance for handle all iframe
     private lastFullCaptureEvent: eventWithTime
     private readonly fullCaptureInterval: number = 2000  //  Constant representing the delay between 2 full capture
+    private wrapperAddNewEventCb = () => (p: eventWithTime) => this.addNewEvent(p)
 
     //  Watchers
-    private watchers: WatchersHandler
+    private watchers: WatchersHandler[] = []
 
     //  Listener
     private microListener: MicrophoneListener
 
 
     constructor(document: Document) {
-        const addNewEventCb = () => (p: eventWithTime) => this.addNewEvent(p)
-
         //  Initialize the node captor
-        this.nodeCaptor = new NodeCaptor(document)
+        this.nodeCaptor = new NodeCaptor()
 
         //  Initialize the iframe manager
-        this.iframeManager = new IframeManager(addNewEventCb())
+        this.iframeManager = new IframeManager(this.wrapperAddNewEventCb())
 
         //  Initialize the mutation buffer
         this.mutationBuffer = new MutationBuffer(this.nodeCaptor)
 
         //  Initialize all watcher
-        this.watchers = new WatchersHandler(this.nodeCaptor, this.iframeManager, document, addNewEventCb) 
+        this.watchers[0] = new WatchersHandler(this.nodeCaptor, this.iframeManager, document, this.wrapperAddNewEventCb)
 
         this.microListener = new MicrophoneListener()
+
+        this.iframeManager.addLoadListener((iframeEl) => {
+            this.watchers.push(
+                new WatchersHandler(
+                    this.nodeCaptor,
+                    this.iframeManager,
+                    iframeEl.contentDocument!,
+                    this.wrapperAddNewEventCb
+                )
+            )
+        });
     }
 
     /**
@@ -53,13 +63,9 @@ class Recorder {
         this.takeFullCapture(true)
 
         // Start Watching
-        this.watchers.watch()
+        this.watchers.forEach(w => w.watch())
 
         this.microListener.listen()
-
-        this.iframeManager.addLoadListener((iframeEl) => {
-            // handlers.push(observe(iframeEl.contentDocument!));
-        });
     }
 
     /**
@@ -73,7 +79,7 @@ class Recorder {
         this.takeFullCapture()
 
         // Stop Watching
-        this.watchers.stop()
+        this.watchers.forEach(w => w.stop())
 
         // Stop Listenning
         this.audioFile = this.microListener.stop()
@@ -101,11 +107,21 @@ class Recorder {
         this.addNewEvent(meta)
 
         // Check if mutation buffer is frozen
-        let wasFrozen = this.mutationBuffer.isFrozen();
-        this.mutationBuffer.freeze(); // don't allow any mirror modifications during snapshotting
+        this.watchers.forEach((w) => w.mutationBuffers.forEach((b) => b.lock())); // don't allow any mirror modifications during snapshotting
 
         // Take a full node capture
-        const [node, DocumentNodeMap] = this.nodeCaptor.capture();
+        const [node, DocumentNodeMap] = this.nodeCaptor.capture(
+            document,
+            (n) => {
+                if (isIframeNodeFormated(n)) {
+                    this.iframeManager.addIframe(n);
+                }
+            },
+            (iframe, childSn) => {
+                this.iframeManager.attachIframe(iframe, childSn);
+            }
+        )
+
         if (!node) return console.warn('Failed to capture the document\'s node');
 
         //  Capture this full capture as an event
@@ -140,10 +156,7 @@ class Recorder {
         this.addNewEvent(evt)
 
         // Check if mutation buffer was frozen unfreeze it
-        if (!wasFrozen) {
-            this.mutationBuffer.emit(); // emit anything queued up now
-            this.mutationBuffer.unfreeze();
-        }
+        this.watchers.forEach((w) => w.mutationBuffers.forEach((b) => b.unlock()));
     }
 
     /**
@@ -151,7 +164,7 @@ class Recorder {
      */
     private addNewEvent(evt: eventWithTime): void {
         if (
-            this.mutationBuffer.isFrozen() &&
+            this.watchers[0].mutationBuffers[0].isFrozen() &&
             evt.type !== EventType.FullCapture &&
             !(
                 evt.type == EventType.IncrementalCapture &&
@@ -160,11 +173,10 @@ class Recorder {
         ) {
             // this is an user initiated event so first we need to apply
             // all DOM changes that have been buffering during paused state
-            this.mutationBuffer.emit();
-            this.mutationBuffer.unfreeze();
+            this.watchers.forEach((w) => w.mutationBuffers.forEach((b) => b.unfreeze()));
         }
 
-        // ! : Handle live mode
+        // TODO : Handle live mode
         //  Saved the event in the time line array
         this.eventsTimeLine.push(evt);
 
