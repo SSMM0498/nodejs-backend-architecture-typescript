@@ -17,8 +17,8 @@
             "elementName": "html",
             "attributes": {
                 "lang": "en",
-                "_width": "851px",
-                "_height": "79.875px"
+                "_width": "1326px",
+                "_height": "299.1875px"
             },
             "childNodes": [
                 {
@@ -63,44 +63,6 @@
                             "nodeId": 6,
                             "originId": 0,
                             "type": 2,
-                            "elementName": "meta",
-                            "attributes": {
-                                "charset": "UTF-8",
-                                "_width": "0px",
-                                "_height": "0px"
-                            },
-                            "childNodes": []
-                        },
-                        {
-                            "nodeId": 7,
-                            "originId": 0,
-                            "type": 2,
-                            "elementName": "meta",
-                            "attributes": {
-                                "name": "viewport",
-                                "content": "width=device-width, initial-scale=1.0",
-                                "_width": "0px",
-                                "_height": "0px"
-                            },
-                            "childNodes": []
-                        },
-                        {
-                            "nodeId": 8,
-                            "originId": 0,
-                            "type": 2,
-                            "elementName": "meta",
-                            "attributes": {
-                                "http-equiv": "X-UA-Compatible",
-                                "content": "ie=edge",
-                                "_width": "0px",
-                                "_height": "0px"
-                            },
-                            "childNodes": []
-                        },
-                        {
-                            "nodeId": 9,
-                            "originId": 0,
-                            "type": 2,
                             "elementName": "title",
                             "attributes": {
                                 "_width": "0px",
@@ -108,47 +70,90 @@
                             },
                             "childNodes": [
                                 {
-                                    "nodeId": 10,
+                                    "nodeId": 7,
                                     "originId": 0,
                                     "type": 3,
                                     "textContent": "Document",
                                     "isCSSRules": false
                                 }
                             ]
+                        },
+                        {
+                            "nodeId": 8,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "link",
+                            "attributes": {
+                                "_width": "0px",
+                                "_height": "0px",
+                                "cssText": "body { margin: 0px; background: white; }p { font-size: 1.35rem; line-height: 2rem; text-align: justify; width: 75%; color: rgb(8, 25, 77); }body { width: 100%; padding: 5rem 2.5rem; }"
+                            },
+                            "childNodes": []
+                        },
+                        {
+                            "nodeId": 9,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "style",
+                            "attributes": {
+                                "_width": "0px",
+                                "_height": "0px",
+                                "cssText": "body { background-color: coral; }"
+                            },
+                            "childNodes": []
                         }
                     ]
                 },
                 {
-                    "nodeId": 11,
+                    "nodeId": 10,
                     "originId": 0,
                     "type": 2,
                     "elementName": "body",
                     "attributes": {
-                        "_width": "835px",
-                        "_height": "37px"
+                        "_width": "1406px",
+                        "_height": "299.1875px"
                     },
                     "childNodes": [
                         {
-                            "nodeId": 12,
+                            "nodeId": 11,
                             "originId": 0,
                             "type": 2,
-                            "elementName": "h1",
+                            "elementName": "p",
                             "attributes": {
-                                "_width": "835px",
-                                "_height": "37px"
+                                "style": "color: brown",
+                                "_width": "994.5px",
+                                "_height": "96px"
                             },
                             "childNodes": [
                                 {
-                                    "nodeId": 13,
+                                    "nodeId": 12,
                                     "originId": 0,
                                     "type": 3,
-                                    "textContent": "Title",
+                                    "textContent": "Lorem ipsum dolor sit amet consectetur adipisicing elit.",
+                                    "isCSSRules": false
+                                },
+                                {
+                                    "nodeId": 13,
+                                    "originId": 0,
+                                    "type": 2,
+                                    "elementName": "br",
+                                    "attributes": {
+                                        "_width": "0px",
+                                        "_height": "24px"
+                                    },
+                                    "childNodes": []
+                                },
+                                {
+                                    "nodeId": 14,
+                                    "originId": 0,
+                                    "type": 3,
+                                    "textContent": "Quasi voluptates aliquam nihil molestiae porro dolorem excepturi fugit animi laborum, totam soluta cum fugiat earum maiores.",
                                     "isCSSRules": false
                                 }
                             ]
                         },
                         {
-                            "nodeId": 14,
+                            "nodeId": 15,
                             "originId": 0,
                             "type": 2,
                             "elementName": "script",
@@ -160,7 +165,7 @@
                             "childNodes": []
                         },
                         {
-                            "nodeId": 15,
+                            "nodeId": 16,
                             "originId": 0,
                             "type": 2,
                             "elementName": "script",

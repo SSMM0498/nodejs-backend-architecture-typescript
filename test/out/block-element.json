@@ -1,0 +1,211 @@
+{
+    "nodeId": 0,
+    "type": 0,
+    "childNodes": [
+        {
+            "nodeId": 1,
+            "type": 1,
+            "name": "html",
+            "publicId": "",
+            "systemId": "",
+            "originId": 0
+        },
+        {
+            "nodeId": 2,
+            "originId": 0,
+            "type": 2,
+            "elementName": "html",
+            "attributes": {
+                "lang": "en",
+                "_width": "851px",
+                "_height": "284px"
+            },
+            "childNodes": [
+                {
+                    "nodeId": 3,
+                    "originId": 0,
+                    "type": 2,
+                    "elementName": "link",
+                    "attributes": {
+                        "type": "text/css",
+                        "id": "dark-mode",
+                        "rel": "stylesheet",
+                        "href": "",
+                        "_width": "0px",
+                        "_height": "0px"
+                    },
+                    "childNodes": []
+                },
+                {
+                    "nodeId": 4,
+                    "originId": 0,
+                    "type": 2,
+                    "elementName": "style",
+                    "attributes": {
+                        "type": "text/css",
+                        "id": "dark-mode-custom-style",
+                        "_width": "0px",
+                        "_height": "0px"
+                    },
+                    "childNodes": []
+                },
+                {
+                    "nodeId": 5,
+                    "originId": 0,
+                    "type": 2,
+                    "elementName": "head",
+                    "attributes": {
+                        "_width": "0px",
+                        "_height": "0px"
+                    },
+                    "childNodes": [
+                        {
+                            "nodeId": 6,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "meta",
+                            "attributes": {
+                                "charset": "UTF-8",
+                                "_width": "0px",
+                                "_height": "0px"
+                            },
+                            "childNodes": []
+                        },
+                        {
+                            "nodeId": 7,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "meta",
+                            "attributes": {
+                                "name": "viewport",
+                                "content": "width=device-width, initial-scale=1.0",
+                                "_width": "0px",
+                                "_height": "0px"
+                            },
+                            "childNodes": []
+                        },
+                        {
+                            "nodeId": 8,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "meta",
+                            "attributes": {
+                                "http-equiv": "X-UA-Compatible",
+                                "content": "ie=edge",
+                                "_width": "0px",
+                                "_height": "0px"
+                            },
+                            "childNodes": []
+                        },
+                        {
+                            "nodeId": 9,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "title",
+                            "attributes": {
+                                "_width": "0px",
+                                "_height": "0px"
+                            },
+                            "childNodes": [
+                                {
+                                    "nodeId": 10,
+                                    "originId": 0,
+                                    "type": 3,
+                                    "textContent": "Document",
+                                    "isCSSRules": false
+                                }
+                            ]
+                        },
+                        {
+                            "nodeId": 11,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "style",
+                            "attributes": {
+                                "_width": "0px",
+                                "_height": "0px",
+                                "cssText": ".big { width: 50px; height: 50px; }.small { width: 50px; height: 100px; float: left; }"
+                            },
+                            "childNodes": []
+                        }
+                    ]
+                },
+                {
+                    "nodeId": 12,
+                    "originId": 0,
+                    "type": 2,
+                    "elementName": "body",
+                    "attributes": {
+                        "_width": "835px",
+                        "_height": "268px"
+                    },
+                    "childNodes": [
+                        {
+                            "nodeId": 13,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "div",
+                            "attributes": {
+                                "_width": "835px",
+                                "_height": "18px"
+                            },
+                            "childNodes": [
+                                {
+                                    "nodeId": 14,
+                                    "originId": 0,
+                                    "type": 3,
+                                    "textContent": "record 2",
+                                    "isCSSRules": false
+                                }
+                            ]
+                        },
+                        {
+                            "nodeId": 15,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "div",
+                            "attributes": {
+                                "class": "small",
+                                "_width": "50px",
+                                "_height": "100px"
+                            },
+                            "childNodes": [
+                                {
+                                    "nodeId": 16,
+                                    "originId": 0,
+                                    "type": 3,
+                                    "textContent": "block 3",
+                                    "isCSSRules": false
+                                }
+                            ]
+                        },
+                        {
+                            "nodeId": 17,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "script",
+                            "attributes": {
+                                "type": "module",
+                                "_width": "0px",
+                                "_height": "0px"
+                            },
+                            "childNodes": []
+                        },
+                        {
+                            "nodeId": 18,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "script",
+                            "attributes": {
+                                "type": "text/javascript",
+                                "_width": "0px",
+                                "_height": "0px"
+                            },
+                            "childNodes": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

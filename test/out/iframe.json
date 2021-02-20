@@ -18,7 +18,7 @@
             "attributes": {
                 "lang": "en",
                 "_width": "851px",
-                "_height": "79.875px"
+                "_height": "595.875px"
             },
             "childNodes": [
                 {
@@ -63,44 +63,6 @@
                             "nodeId": 6,
                             "originId": 0,
                             "type": 2,
-                            "elementName": "meta",
-                            "attributes": {
-                                "charset": "UTF-8",
-                                "_width": "0px",
-                                "_height": "0px"
-                            },
-                            "childNodes": []
-                        },
-                        {
-                            "nodeId": 7,
-                            "originId": 0,
-                            "type": 2,
-                            "elementName": "meta",
-                            "attributes": {
-                                "name": "viewport",
-                                "content": "width=device-width, initial-scale=1.0",
-                                "_width": "0px",
-                                "_height": "0px"
-                            },
-                            "childNodes": []
-                        },
-                        {
-                            "nodeId": 8,
-                            "originId": 0,
-                            "type": 2,
-                            "elementName": "meta",
-                            "attributes": {
-                                "http-equiv": "X-UA-Compatible",
-                                "content": "ie=edge",
-                                "_width": "0px",
-                                "_height": "0px"
-                            },
-                            "childNodes": []
-                        },
-                        {
-                            "nodeId": 9,
-                            "originId": 0,
-                            "type": 2,
                             "elementName": "title",
                             "attributes": {
                                 "_width": "0px",
@@ -108,28 +70,40 @@
                             },
                             "childNodes": [
                                 {
-                                    "nodeId": 10,
+                                    "nodeId": 7,
                                     "originId": 0,
                                     "type": 3,
                                     "textContent": "Document",
                                     "isCSSRules": false
                                 }
                             ]
+                        },
+                        {
+                            "nodeId": 8,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "style",
+                            "attributes": {
+                                "_width": "0px",
+                                "_height": "0px",
+                                "cssText": "iframe { width: 1000px; height: 500px; }"
+                            },
+                            "childNodes": []
                         }
                     ]
                 },
                 {
-                    "nodeId": 11,
+                    "nodeId": 9,
                     "originId": 0,
                     "type": 2,
                     "elementName": "body",
                     "attributes": {
                         "_width": "835px",
-                        "_height": "37px"
+                        "_height": "566.4375px"
                     },
                     "childNodes": [
                         {
-                            "nodeId": 12,
+                            "nodeId": 10,
                             "originId": 0,
                             "type": 2,
                             "elementName": "h1",
@@ -139,16 +113,28 @@
                             },
                             "childNodes": [
                                 {
-                                    "nodeId": 13,
+                                    "nodeId": 11,
                                     "originId": 0,
                                     "type": 3,
-                                    "textContent": "Title",
+                                    "textContent": "Iframe parent",
                                     "isCSSRules": false
                                 }
                             ]
                         },
                         {
-                            "nodeId": 14,
+                            "nodeId": 12,
+                            "originId": 0,
+                            "type": 2,
+                            "elementName": "iframe",
+                            "attributes": {
+                                "src": "http://127.0.0.1:5501/test/html/index.html",
+                                "_width": "1004px",
+                                "_height": "504px"
+                            },
+                            "childNodes": []
+                        },
+                        {
+                            "nodeId": 13,
                             "originId": 0,
                             "type": 2,
                             "elementName": "script",
@@ -160,7 +146,7 @@
                             "childNodes": []
                         },
                         {
-                            "nodeId": 15,
+                            "nodeId": 14,
                             "originId": 0,
                             "type": 2,
                             "elementName": "script",
