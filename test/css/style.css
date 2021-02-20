@@ -4,10 +4,14 @@ body {
 }
 
 p {
-    color: red;
-    background: gray;
+    font-size: 1.35rem;
+    line-height: 2rem;
+    text-align: justify;
+    width: 75%;
+    color: #08194d;
 }
 
-body>p {
-    color: yellow;
+body {
+    width: 100%;
+    padding: 5rem 2.5rem;
 }
