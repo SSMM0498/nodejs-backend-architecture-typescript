@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Document</title>
+    <style>
+        iframe {
+            width: 1000px;
+            height: 500px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Iframe parent</h1>
+    <iframe src="./index.html"></iframe>
+    <script type="module">
+        import { Recorder } from "../../dist/arkad-recorder.js"
+
+        window.onload = function () {
+            var rec = new Recorder(document)
+            setTimeout(() => {
+                rec.start()
+            }, 1000);
+            setTimeout(() => {
+                rec.stop()
+                console.log(JSON.stringify(rec.eventsTimeLine[1].data.adds))
+            }, 7000);
+        }
+    </script>
+</body>
+
+</html>

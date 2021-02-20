@@ -2,32 +2,17 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test</title>
     <link rel="stylesheet" href="../css/style.css">
-    <style>
-        p {
-            color: #101010;
-        }
-    </style>
+    <style>p { color: #101010; }</style>
 </head>
 
 <body>
-    <h1>My test file</h1>
+    <h1>My iframe</h1>
     <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi fugiat dignissimos.
+        In the iframe
     </p>
-    <iframe src="./basic.html" frameborder="0"></iframe>
     <script src="../js/main.js"></script>
-    <script type="module">
-        import { NodeCaptor } from "../../dist/arkad-recorder.js"
-        window.onload = function () {
-            var capt = new NodeCaptor(document)
-            var firstcapt = capt.capture()
-            console.log(JSON.stringify(firstcapt[0]))
-        }
-    </script>
 </body>
 
 </html>
