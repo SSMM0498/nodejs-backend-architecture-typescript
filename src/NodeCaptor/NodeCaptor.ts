@@ -1,3 +1,4 @@
+import { isBlocked } from "../Recorder/utils";
 import {
     NodeCaptured,
     DocumentNodesMap,
@@ -134,7 +135,7 @@ class NodeCaptor {
         onSerialize?: (n: NodeFormated) => unknown,
         onIframeLoad?: (iframeNodeFormated: NodeFormated, node: NodeCaptured) => unknown
     ): NodeCaptured | null {
-        if (!currentNode) return null
+        if (!currentNode || isBlocked(currentNode, 'norecord')) return null
 
         const _capturedNode = this.captureNode(doc, currentNode as Node)
 
@@ -161,7 +162,7 @@ class NodeCaptor {
         //  format and capture each child of the current node
         if (capturedNode.type === NodeType.Document || capturedNode.type === NodeType.Element) {
             for (const childNode of Array.from((currentNode as Node).childNodes)) {
-                const capturedChildNode = this.formatNode(childNode, map, doc)
+                const capturedChildNode = this.formatNode(childNode, map, doc, onSerialize, onIframeLoad)
                 if (capturedChildNode) {
                     capturedNode.childNodes.push(capturedChildNode)
                 }
@@ -182,7 +183,7 @@ class NodeCaptor {
                         const parsedIframeNode = this.formatNode(
                             iframeElements[1],
                             map,
-                            iframeDoc,
+                            iframeDoc, onSerialize, onIframeLoad
                         );
                         if (parsedIframeNode) {
                             onIframeLoad(currentNode as NodeFormated, parsedIframeNode);

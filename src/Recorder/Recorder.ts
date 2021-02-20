@@ -60,7 +60,7 @@ class Recorder {
         console.log('start')
 
         //  Take the first full capture
-        this.takeFullCapture(true)
+        this.takeFullCapture("first")
 
         // Start Watching
         this.watchers.forEach(w => w.watch())
@@ -73,16 +73,17 @@ class Recorder {
      */
     public stop() {
         console.log('stop')
-        console.log(this.eventsTimeLine);
 
         // Take the last full capture
-        this.takeFullCapture()
+        this.takeFullCapture("last")
 
         // Stop Watching
         this.watchers.forEach(w => w.stop())
 
         // Stop Listenning
         this.audioFile = this.microListener.stop()
+
+        console.log(this.eventsTimeLine);
         console.log(URL.createObjectURL(this.audioFile))
 
         //  TODO: Save to a file
@@ -92,7 +93,7 @@ class Recorder {
      * Take full capture of the document
      * @param isFirst for checking if this a the first full capture
      */
-    public takeFullCapture(isFirst: boolean = false) {
+    public takeFullCapture(isFirst: "first" | "last" | "middle") {
         // Capture meta information
         const meta: eventWithTime = {
             type: EventType.Meta,
@@ -101,6 +102,7 @@ class Recorder {
                 width: getWindowWidth(),
                 height: getWindowHeight(),
             },
+            isFirst,
             timestamp: Date.now(),
         }
         //  Record a meta in events time line
@@ -146,6 +148,7 @@ class Recorder {
                             0,
                 },
             },
+            isFirst,
             timestamp: Date.now(),
         }
 
@@ -183,10 +186,12 @@ class Recorder {
         //  Check if it is time to do a new full node capture
         if (evt.type === EventType.FullCapture) {
             this.lastFullCaptureEvent = evt;
-        } else if (evt.type === EventType.IncrementalCapture) {
+        } else if (
+            evt.type === EventType.IncrementalCapture &&this.lastFullCaptureEvent) {
+            if (evt.data.source === IncrementalSource.Mutation && evt.data.fromIframe) return;
             const exceedTime = this.fullCaptureInterval && evt.timestamp - this.lastFullCaptureEvent.timestamp > this.fullCaptureInterval;
             if (exceedTime) {
-                this.takeFullCapture(false);
+                this.takeFullCapture("middle");
             }
         }
     }

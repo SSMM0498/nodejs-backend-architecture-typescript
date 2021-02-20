@@ -318,6 +318,7 @@ export default class MutationBuffer {
                 .filter((attribute) => _NFMHandler.has(attribute.id)),
             removes: this.removes,
             adds: adds,
+            fromIframe: false
         };
 
         const evt: eventWithTime = {

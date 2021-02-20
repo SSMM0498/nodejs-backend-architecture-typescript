@@ -23,16 +23,17 @@ export class IframeManager {
                 type: EventType.IncrementalCapture,
                 data: {
                     source: IncrementalSource.Mutation,
-                        adds: [
-                            {
-                                parentId: iframeEl._cnode.nodeId,
-                                nextId: null,
-                                node: childSn,
-                            },
-                        ],
-                        removes: [],
-                        texts: [],
-                        attributes: [],
+                    adds: [
+                        {
+                            parentId: iframeEl._cnode.nodeId,
+                            nextId: null,
+                            node: childSn,
+                        },
+                    ],
+                    removes: [],
+                    texts: [],
+                    attributes: [],
+                    fromIframe: true
                 },
                 timestamp: Date.now()
         });

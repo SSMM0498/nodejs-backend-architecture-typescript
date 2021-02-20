@@ -23,6 +23,7 @@ export type fullCaptureEvent = {
             left: number
         }
     }
+    isFirst: "first" | "last" | "middle"
 }
 
 /**
@@ -43,6 +44,7 @@ export type metaEvent = {
         width: number;
         height: number;
     };
+    isFirst: "first" | "last" | "middle"
 };
 
 /**
@@ -174,6 +176,7 @@ type mutationCallbackParam = {
     attributes: attributeMutation[]
     removes: removedNodeMutation[]
     adds: addedNodeMutation[]
+    fromIframe: boolean
 }
 
 export type mousePosition = {
